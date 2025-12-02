@@ -1,104 +1,154 @@
 import { useState, useEffect } from "react";
-import { RegionCard } from "@/components/RegionCard";
-import { RegionSelector } from "@/components/RegionSelector";
-import { regions, getRandomRegion, getRegionById } from "@/data/regions";
-import { Radio } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { LocationPrompt } from "@/components/LocationPrompt";
+import { DiscoverySection } from "@/components/DiscoverySection";
+import { RegionPicker } from "@/components/RegionPicker";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useRegions } from "@/hooks/useRegions";
+import { Radio, LogIn, Loader2 } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
 
 const Index = () => {
-  const [currentRegionId, setCurrentRegionId] = useState<string>("");
+  const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
+  const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
   
-  useEffect(() => {
-    // Place user in random region on load
-    const randomRegion = getRandomRegion();
-    setCurrentRegionId(randomRegion.id);
-  }, []);
+  const {
+    latitude,
+    longitude,
+    error: locationError,
+    loading: locationLoading,
+    nearestRegion,
+    requestLocation,
+  } = useGeolocation();
 
-  const currentRegion = getRegionById(currentRegionId);
+  const { data: regions, isLoading: regionsLoading } = useRegions();
+
+  // Auto-select nearest region when location is detected
+  useEffect(() => {
+    if (nearestRegion && !currentRegionId) {
+      setCurrentRegionId(nearestRegion.id);
+      setLocationPromptDismissed(true);
+    }
+  }, [nearestRegion, currentRegionId]);
+
+  // If location is skipped, select a random region
+  const handleSkipLocation = () => {
+    if (regions && regions.length > 0) {
+      const randomIndex = Math.floor(Math.random() * regions.length);
+      setCurrentRegionId(regions[randomIndex].id);
+    }
+    setLocationPromptDismissed(true);
+  };
 
   const handleRandomRegion = () => {
-    const randomRegion = getRandomRegion();
-    setCurrentRegionId(randomRegion.id);
+    if (regions && regions.length > 0) {
+      const otherRegions = regions.filter((r) => r.id !== currentRegionId);
+      const randomIndex = Math.floor(Math.random() * otherRegions.length);
+      setCurrentRegionId(otherRegions[randomIndex].id);
+    }
   };
+
+  const currentRegion = regions?.find((r) => r.id === currentRegionId);
+  const showLocationPrompt = !locationPromptDismissed && !latitude && !regionsLoading;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
       {/* Hero Section */}
       <header className="relative overflow-hidden border-b border-border">
-        <div 
+        <div
           className="absolute inset-0 opacity-20 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroGlobe})` }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
-        
-        <div className="relative container mx-auto px-4 py-16 md:py-24">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Radio className="w-12 h-12 text-primary animate-pulse" />
+
+        <div className="relative container mx-auto px-4 py-12 md:py-20">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <Radio className="w-8 h-8 text-primary animate-pulse" />
+              <span className="text-xl font-bold text-foreground">FREQUENCY</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              FREQUENCY
+            <Link to="/auth">
+              <Button variant="outline" className="gap-2">
+                <LogIn className="w-4 h-4" />
+                Sign In
+              </Button>
+            </Link>
+          </div>
+
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              Discover Music Beyond Borders
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Break free from algorithms. Explore authentic music from every corner of the world.
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Break free from algorithms. Explore authentic music from every corner of the world based on where you are.
             </p>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12 space-y-12">
-        {/* Current Region Display */}
-        {currentRegion && (
-          <section className="max-w-4xl mx-auto space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-3xl font-bold text-foreground">Your Current Frequency</h2>
-              <p className="text-muted-foreground">
-                You've landed in <span className="text-primary font-semibold">{currentRegion.region}</span>
-              </p>
-            </div>
-            
-            <RegionCard
-              region={currentRegion.region}
-              country={currentRegion.country}
-              tracks={currentRegion.tracks}
-              description={currentRegion.description}
-              isActive={true}
-            />
-          </section>
-        )}
-
-        {/* Region Selector */}
-        <section className="max-w-6xl mx-auto space-y-6">
-          <RegionSelector
-            regions={regions.map(r => ({ id: r.id, name: r.region, country: r.country }))}
-            currentRegion={currentRegionId}
-            onRegionChange={setCurrentRegionId}
-            onRandomRegion={handleRandomRegion}
-          />
-        </section>
-
-        {/* Other Regions Grid */}
-        <section className="max-w-7xl mx-auto space-y-6">
-          <h2 className="text-2xl font-bold text-foreground text-center">
-            Explore More Frequencies
-          </h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {regions
-              .filter(r => r.id !== currentRegionId)
-              .map(region => (
-                <RegionCard
-                  key={region.id}
-                  region={region.region}
-                  country={region.country}
-                  tracks={region.tracks}
-                  description={region.description}
-                  onExplore={() => setCurrentRegionId(region.id)}
-                />
-              ))}
+      <main className="container mx-auto px-4 py-8 md:py-12">
+        {regionsLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
-        </section>
+        ) : showLocationPrompt ? (
+          <div className="py-12">
+            <LocationPrompt
+              onEnableLocation={requestLocation}
+              onSkip={handleSkipLocation}
+              loading={locationLoading}
+              error={locationError}
+            />
+          </div>
+        ) : (
+          <div className="space-y-10">
+            {/* Region Picker */}
+            {regions && regions.length > 0 && (
+              <RegionPicker
+                regions={regions}
+                currentRegionId={currentRegionId}
+                onRegionChange={setCurrentRegionId}
+                onRandomRegion={handleRandomRegion}
+                nearestRegionId={nearestRegion?.id}
+              />
+            )}
+
+            {/* Discovery Section */}
+            {currentRegion && (
+              <DiscoverySection
+                region={currentRegion}
+                isLocationBased={nearestRegion?.id === currentRegionId}
+                distance={nearestRegion?.id === currentRegionId ? nearestRegion.distance : undefined}
+              />
+            )}
+
+            {/* Other Regions */}
+            {regions && regions.length > 1 && (
+              <section className="space-y-6 pt-8 border-t border-border">
+                <h3 className="text-xl font-semibold text-foreground">
+                  Explore Other Frequencies
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {regions
+                    .filter((r) => r.id !== currentRegionId)
+                    .map((region) => (
+                      <Button
+                        key={region.id}
+                        variant="outline"
+                        className="h-auto py-4 flex flex-col items-start text-left hover:border-primary hover:bg-primary/5"
+                        onClick={() => setCurrentRegionId(region.id)}
+                      >
+                        <span className="font-semibold text-sm">{region.name}</span>
+                        <span className="text-xs text-muted-foreground">{region.country}</span>
+                      </Button>
+                    ))}
+                </div>
+              </section>
+            )}
+          </div>
+        )}
       </main>
 
       {/* Footer */}
