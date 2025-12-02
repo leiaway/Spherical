@@ -14,7 +14,206 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      artists: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          is_emerging: boolean | null
+          listener_count: number | null
+          name: string
+          region_id: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_emerging?: boolean | null
+          listener_count?: number | null
+          name: string
+          region_id?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_emerging?: boolean | null
+          listener_count?: number | null
+          name?: string
+          region_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artists_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      genres: {
+        Row: {
+          description: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          current_latitude: number | null
+          current_longitude: number | null
+          current_region_id: string | null
+          display_name: string | null
+          home_country: string | null
+          id: string
+          location_enabled: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          current_latitude?: number | null
+          current_longitude?: number | null
+          current_region_id?: string | null
+          display_name?: string | null
+          home_country?: string | null
+          id: string
+          location_enabled?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          current_latitude?: number | null
+          current_longitude?: number | null
+          current_region_id?: string | null
+          display_name?: string | null
+          home_country?: string | null
+          id?: string
+          location_enabled?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_current_region_id_fkey"
+            columns: ["current_region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regions: {
+        Row: {
+          country: string
+          created_at: string
+          description: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
+      tracks: {
+        Row: {
+          artist_id: string
+          audio_url: string | null
+          cover_image_url: string | null
+          created_at: string
+          cultural_context: string | null
+          duration_seconds: number | null
+          genre_id: string | null
+          id: string
+          play_count: number | null
+          region_id: string | null
+          title: string
+        }
+        Insert: {
+          artist_id: string
+          audio_url?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          cultural_context?: string | null
+          duration_seconds?: number | null
+          genre_id?: string | null
+          id?: string
+          play_count?: number | null
+          region_id?: string | null
+          title: string
+        }
+        Update: {
+          artist_id?: string
+          audio_url?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          cultural_context?: string | null
+          duration_seconds?: number | null
+          genre_id?: string | null
+          id?: string
+          play_count?: number | null
+          region_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracks_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracks_genre_id_fkey"
+            columns: ["genre_id"]
+            isOneToOne: false
+            referencedRelation: "genres"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracks_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
