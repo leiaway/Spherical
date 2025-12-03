@@ -8,6 +8,7 @@ import { UserMap } from "@/components/UserMap";
 import { FriendsList } from "@/components/FriendsList";
 import { AddFriend } from "@/components/AddFriend";
 import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsRecommendations";
+import { PlaylistManager } from "@/components/PlaylistManager";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
 import { Radio, LogIn, Loader2 } from "lucide-react";
@@ -136,6 +137,9 @@ const Index = () => {
               <div className="space-y-6">
                 {/* User Map */}
                 <UserMap />
+
+                {/* Playlists */}
+                <PlaylistManager regionId={currentRegionId} regionName={currentRegion?.name} />
 
                 {/* Emerging Artists Recommendations */}
                 <EmergingArtistsRecommendations regionId={currentRegionId} />

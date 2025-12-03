@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Sparkles, Music } from "lucide-react";
 import type { Track } from "@/hooks/useRegions";
+import { AddToPlaylistButton } from "./AddToPlaylistButton";
 
 interface TrackCardProps {
   track: Track;
@@ -56,12 +57,15 @@ export const TrackCard = ({ track, index }: TrackCardProps) => {
             )}
           </div>
 
-          {/* Play Count */}
-          <div className="flex-shrink-0 text-right">
-            <span className="text-sm font-medium text-muted-foreground">
-              {formatPlayCount(track.play_count)}
-            </span>
-            <p className="text-xs text-muted-foreground">plays</p>
+          {/* Play Count & Add to Playlist */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="text-right">
+              <span className="text-sm font-medium text-muted-foreground">
+                {formatPlayCount(track.play_count)}
+              </span>
+              <p className="text-xs text-muted-foreground">plays</p>
+            </div>
+            <AddToPlaylistButton trackId={track.id} />
           </div>
         </div>
 
