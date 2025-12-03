@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { LocationPrompt } from "@/components/LocationPrompt";
 import { DiscoverySection } from "@/components/DiscoverySection";
 import { RegionPicker } from "@/components/RegionPicker";
+import { UserMap } from "@/components/UserMap";
+import { FriendsList } from "@/components/FriendsList";
+import { AddFriend } from "@/components/AddFriend";
+import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsRecommendations";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
 import { Radio, LogIn, Loader2 } from "lucide-react";
@@ -115,14 +119,34 @@ const Index = () => {
               />
             )}
 
-            {/* Discovery Section */}
-            {currentRegion && (
-              <DiscoverySection
-                region={currentRegion}
-                isLocationBased={nearestRegion?.id === currentRegionId}
-                distance={nearestRegion?.id === currentRegionId ? nearestRegion.distance : undefined}
-              />
-            )}
+            {/* Main Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Discovery Section - Main Content */}
+              <div className="lg:col-span-2 space-y-6">
+                {currentRegion && (
+                  <DiscoverySection
+                    region={currentRegion}
+                    isLocationBased={nearestRegion?.id === currentRegionId}
+                    distance={nearestRegion?.id === currentRegionId ? nearestRegion.distance : undefined}
+                  />
+                )}
+              </div>
+
+              {/* Sidebar */}
+              <div className="space-y-6">
+                {/* User Map */}
+                <UserMap />
+
+                {/* Emerging Artists Recommendations */}
+                <EmergingArtistsRecommendations regionId={currentRegionId} />
+
+                {/* Friends List */}
+                <FriendsList />
+
+                {/* Add Friend */}
+                <AddFriend />
+              </div>
+            </div>
 
             {/* Other Regions */}
             {regions && regions.length > 1 && (
