@@ -1,0 +1,86 @@
+# Spherical Architecture Diagram
+
+## Architecture Overview
+
+The Spherical application follows a modern cloud-native architecture with clear separation between frontend and backend services.
+
+### System Components
+
+```mermaid
+graph TD
+%% Services
+svcazurecontainerapps_sphericalfrontend["`Name: Spherical Frontend
+Path: /Users/lanis-mac/git/Spherical
+Language: TypeScript
+Port: 3000
+Framework: React + Vite`"]
+subgraph "Compute Resources"
+%% Resources
+subgraph containerappenv["Azure Container Apps (ACA) Environment"]
+azurecontainerapps_sphericalfrontend("`Spherical Frontend
+Azure Container App`")
+end
+containerappenv:::cluster
+end
+subgraph "Dependency Resources"
+%% Dependency Resources
+azurecosmosdb_supabasebackend["`Supabase Backend
+Postgres Database`"]
+azureaiservices_geolocationapi["`Geolocation APIs
+Location Services`"]
+end
+%% Relationships
+svcazurecontainerapps_sphericalfrontend --> |"hosted on"| azurecontainerapps_sphericalfrontend
+azurecontainerapps_sphericalfrontend -.-> |"system-identity"| azurecosmosdb_supabasebackend
+azurecontainerapps_sphericalfrontend -.-> |"http"| azureaiservices_geolocationapi
+```
+
+### Data Flow
+
+1. **Frontend Layer** (React/TypeScript)
+   - Vite-based development and production build
+   - React components for UI (shadcn/ui components)
+   - State management via React Query (@tanstack/react-query)
+   - Client-side routing and navigation
+
+2. **Backend Services** (Supabase)
+   - PostgreSQL database for user data, playlists, friends
+   - Real-time capabilities via Supabase
+   - Authentication and authorization
+   - SQL migrations for schema management
+
+3. **External Integrations**
+   - Geolocation APIs for location-based features
+   - Regional data services
+   - Artist and music discovery services
+
+### Key Features
+
+- User authentication and profiles
+- Playlist management and sharing
+- Friend connections and social features
+- Artist discovery with emerging artists recommendations
+- Regional music discovery
+- Location-based features with maps
+- Responsive UI with Tailwind CSS
+
+### Technology Stack
+
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, Radix UI components
+- **State Management**: React Query (TanStack Query)
+- **Backend**: Supabase (PostgreSQL)
+- **Forms**: React Hook Form
+- **Icons**: Lucide React
+- **Toast Notifications**: Sonner
+
+## Hosting Recommendations
+
+For optimal deployment on Azure, the supported hosting technologies are:
+- **App Service** - Suitable for traditional web apps
+- **Azure Container Apps** - Recommended for containerized applications
+- **Azure Functions** - For serverless workloads
+- **Static Web App** - For static content
+- **Azure Kubernetes Service (AKS)** - For complex orchestration needs
+
+The current diagram shows **Azure Container Apps** as the recommended hosting environment for the Spherical frontend application.
