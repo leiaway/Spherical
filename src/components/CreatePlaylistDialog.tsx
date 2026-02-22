@@ -14,6 +14,8 @@ import { Switch } from '@/components/ui/switch';
 import { Plus, Loader2 } from 'lucide-react';
 import { usePlaylists } from '@/hooks/usePlaylists';
 
+/** Requirement: F3 (curated user playlists – create). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface CreatePlaylistDialogProps {
   regionId?: string | null;
   regionName?: string;

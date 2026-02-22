@@ -8,6 +8,8 @@ import { ArtistCard } from "./ArtistCard";
 import { useRegionTracks, useRegionArtists, type Region } from "@/hooks/useRegions";
 import { Music, Users, MapPin, Sparkles, RefreshCw } from "lucide-react";
 
+/** Requirement: F5 (cultural recommendations by region), F8 (emerging artists tab). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface DiscoverySectionProps {
   region: Region;
   isLocationBased?: boolean;

@@ -13,6 +13,8 @@ import { Share2, Check, Loader2, UserPlus } from 'lucide-react';
 import { useFriends } from '@/hooks/useFriends';
 import { usePlaylists, usePlaylistShares, type Playlist } from '@/hooks/usePlaylists';
 
+/** Requirement: F3 (curated playlists – share with friend). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface SharePlaylistDialogProps {
   playlist: Playlist;
 }

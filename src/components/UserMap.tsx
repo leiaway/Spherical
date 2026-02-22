@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { MapPin, Users, Key } from 'lucide-react';
 
+/** Requirement: F4 (user map / snap map stories). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface UserLocation {
   id: string;
   display_name: string | null;

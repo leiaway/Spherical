@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, ListMusic, Check, Loader2 } from 'lucide-react';
 import { usePlaylists } from '@/hooks/usePlaylists';
 
+/** Requirement: F3 (curated user playlists – add track). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface AddToPlaylistButtonProps {
   trackId: string;
 }

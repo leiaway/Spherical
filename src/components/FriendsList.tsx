@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Users, UserPlus, Check, X, Loader2 } from 'lucide-react';
 
+/** Requirement: F7 (add friend – list, accept/reject, remove). See docs/REQUIREMENTS_REFERENCE.md */
+
 /**
  * Sidebar card: list of friends, pending requests (accept/reject), and remove friend. Uses useFriends().
  */

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+/** Requirement: F7 (add friend feature). See docs/REQUIREMENTS_REFERENCE.md */
+
 /** Friendship row plus optional profile for the other user (friend_profile or user_profile depending on direction). */
 interface Friend {
   id: string;

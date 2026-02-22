@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+/** Requirement: F1 (geo-tracking), F2 (location preference in recommendations). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface GeolocationState {
   latitude: number | null;
   longitude: number | null;

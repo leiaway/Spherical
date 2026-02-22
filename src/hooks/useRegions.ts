@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+/** Requirement: F5 (international/cultural music recommendations). See docs/REQUIREMENTS_REFERENCE.md */
+
 /**
  * Track as returned from the API with artist and genre relations.
  * @see useRegionTracks

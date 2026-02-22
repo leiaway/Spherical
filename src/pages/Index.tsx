@@ -17,6 +17,7 @@ import heroGlobe from "@/assets/hero-globe.jpg";
 /**
  * Home page: hero, location prompt (or region picker + discovery), discovery section, sidebar (map, playlists, emerging artists, friends).
  * Auto-selects nearest region when geolocation is available; supports skip and random region.
+ * @requirement F1, F2, F3, F4, F5, F7, F8. See docs/REQUIREMENTS_REFERENCE.md
  */
 const Index = () => {
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);

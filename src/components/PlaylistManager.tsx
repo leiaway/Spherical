@@ -31,6 +31,8 @@ import { CreatePlaylistDialog } from './CreatePlaylistDialog';
 import { SharePlaylistDialog } from './SharePlaylistDialog';
 import { TrackCard } from './TrackCard';
 
+/** Requirement: F3 (curated user playlists, sharing). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface PlaylistManagerProps {
   regionId?: string | null;
   regionName?: string;

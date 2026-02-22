@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, UserPlus, Loader2 } from 'lucide-react';
 
+/** Requirement: F7 (add friend – search users, send request). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface SearchResult {
   id: string;
   display_name: string | null;

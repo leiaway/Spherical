@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { Region } from "@/hooks/useRegions";
 
+/** Requirement: F5 (cultural recommendations – region picker), F2 (nearest region). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface RegionPickerProps {
   regions: Region[];
   currentRegionId: string | null;

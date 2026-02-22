@@ -25,6 +25,8 @@ const authSchema = z.object({
 
 type AuthFormValues = z.infer<typeof authSchema>;
 
+/** Auth supports all features; no single F ID. See docs/REQUIREMENTS_REFERENCE.md */
+
 /** Auth page: sign in / sign up with email or phone + password via Supabase Auth. Redirects to / on success. */
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);

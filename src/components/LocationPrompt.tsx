@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Globe, Loader2 } from "lucide-react";
 
+/** Requirement: F1 (geo-tracking – enable location or skip). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface LocationPromptProps {
   onEnableLocation: () => void;
   onSkip: () => void;

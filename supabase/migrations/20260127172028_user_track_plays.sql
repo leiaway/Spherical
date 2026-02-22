@@ -1,3 +1,4 @@
+-- Requirement: F6 (music shuffle – per-user play tracking). See docs/F6.1-shuffle-algorithm-design.md
 -- Create user_track_plays table for per-user play tracking
 -- This enables personalized shuffle algorithms that prioritize less-played songs
 CREATE TABLE public.user_track_plays (

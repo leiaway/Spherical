@@ -4,6 +4,8 @@ import { ArtistCard } from '@/components/ArtistCard';
 import { Sparkles, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+/** Requirement: F8 (recommend new/emerging artists). See docs/REQUIREMENTS_REFERENCE.md */
+
 interface EmergingArtistsRecommendationsProps {
   regionId?: string | null;
 }

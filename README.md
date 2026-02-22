@@ -44,3 +44,8 @@ Our product, Frequency, encourages users to develop more worldly musical palette
 - **Maps**: Mapbox (user map)
 
 ---
+## Requirements traceability
+
+Features are numbered **F1–F21** (e.g. F1 Geo-tracking, F3 Curated playlists, F6 Music shuffle). User personas (Nâmé, Antonio, Lucy, Ryan, Wayne, Sasha) and their catered features are listed in **`docs/REQUIREMENTS_REFERENCE.md`**. Code comments use `Requirement: Fx` so you can trace implementation to features and personas.
+
+---

@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+/** Requirement: F3 (curated user playlists, including sharing). See docs/REQUIREMENTS_REFERENCE.md */
+
 /**
  * Playlist with optional region and track_count.
  * @see usePlaylists, usePlaylistTracks
