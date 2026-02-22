@@ -18,6 +18,10 @@ interface UserMapProps {
   className?: string;
 }
 
+/**
+ * Mapbox map showing users who have shared location (profiles.current_latitude/longitude).
+ * Requires a Mapbox token; subscribes to Realtime on profiles for live updates.
+ */
 export const UserMap = ({ className }: UserMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);

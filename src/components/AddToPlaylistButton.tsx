@@ -14,6 +14,10 @@ interface AddToPlaylistButtonProps {
   trackId: string;
 }
 
+/**
+ * Dropdown to add the given track to one of the user's playlists. Renders nothing when not signed in.
+ * Uses usePlaylists().playlists and addTrackToPlaylist mutation.
+ */
 export const AddToPlaylistButton = ({ trackId }: AddToPlaylistButtonProps) => {
   const { playlists, addTrackToPlaylist, currentUserId } = usePlaylists();
   const [addingTo, setAddingTo] = useState<string | null>(null);

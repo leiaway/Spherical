@@ -19,6 +19,10 @@ interface CreatePlaylistDialogProps {
   regionName?: string;
 }
 
+/**
+ * Dialog to create a new playlist: name, description, optional link to current region, and public toggle.
+ * Uses usePlaylists().createPlaylist; optionally passes regionId when "Link to [region]" is on.
+ */
 export const CreatePlaylistDialog = ({ regionId, regionName }: CreatePlaylistDialogProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');

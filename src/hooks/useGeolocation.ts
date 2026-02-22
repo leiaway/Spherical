@@ -17,6 +17,31 @@ interface NearestRegion {
   distance: number;
 }
 
+/**
+ * Geolocation and nearest-region hook. Uses browser Geolocation API and Haversine distance
+ * to determine the closest region. Call requestLocation() to prompt for permission and run the flow.
+ *
+ * **Side effects:** Subscribes to auth (none here); on requestLocation() may prompt for browser
+ * permission, then fetches regions from Supabase and updates nearestRegion state.
+ *
+ * @returns Object with:
+ *   - `latitude`, `longitude` (number | null) - last known coords
+ *   - `error` (string | null) - permission or getCurrentPosition error message
+ *   - `loading` (boolean) - true while getCurrentPosition is in progress
+ *   - `permission` ('prompt' | 'granted' | 'denied' | null) - from Permissions API when available
+ *   - `nearestRegion` ({ id, name, country, description, distance } | null) - set after requestLocation succeeds
+ *   - `requestLocation` () => void - call to request location and compute nearest region
+ *
+ * @example
+ * const { latitude, nearestRegion, requestLocation, loading, error } = useGeolocation();
+ * return (
+ *   <>
+ *     <Button onClick={requestLocation} disabled={loading}>Enable location</Button>
+ *     {error && <p>{error}</p>}
+ *     {nearestRegion && <p>Nearest: {nearestRegion.name} (~{nearestRegion.distance} km)</p>}
+ *   </>
+ * );
+ */
 export const useGeolocation = () => {
   const [state, setState] = useState<GeolocationState>({
     latitude: null,
@@ -28,6 +53,15 @@ export const useGeolocation = () => {
 
   const [nearestRegion, setNearestRegion] = useState<NearestRegion | null>(null);
 
+  /**
+   * Haversine formula: great-circle distance between two lat/lon points in km.
+   * Uses Earth's radius 6371 km; converts degrees to radians for sin/cos.
+   * @param lat1 - Latitude of first point (degrees)
+   * @param lon1 - Longitude of first point (degrees)
+   * @param lat2 - Latitude of second point (degrees)
+   * @param lon2 - Longitude of second point (degrees)
+   * @returns Distance in kilometres (non-negative)
+   */
   const calculateDistance = (
     lat1: number,
     lon1: number,
@@ -47,6 +81,7 @@ export const useGeolocation = () => {
     return R * c;
   };
 
+  /** Loads all regions and picks the one with smallest Haversine distance to (lat, lon). */
   const findNearestRegion = useCallback(async (lat: number, lon: number) => {
     try {
       const { data: regions, error } = await supabase

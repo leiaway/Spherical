@@ -17,6 +17,10 @@ interface RegionPickerProps {
   nearestRegionId?: string | null;
 }
 
+/**
+ * Region selector: dropdown of all regions plus "Random" and optional "Back to Local" when nearest is set.
+ * Shows "Nearest" badge on the region that matches nearestRegionId.
+ */
 export const RegionPicker = ({
   regions,
   currentRegionId,

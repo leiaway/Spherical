@@ -13,6 +13,7 @@ interface ArtistCardProps {
   compact?: boolean;
 }
 
+/** Formats listener count for display (e.g. 1.2M, 50K). */
 const formatListenerCount = (count: number | null): string => {
   if (!count) return '0';
   if (count >= 1000000) return `${(count / 1000000).toFixed(1)}M`;
@@ -20,6 +21,10 @@ const formatListenerCount = (count: number | null): string => {
   return count.toString();
 };
 
+/**
+ * Card for an artist: image, name, listener count, optional region, and "Rising" badge when is_emerging.
+ * Supports compact mode for list layouts.
+ */
 export const ArtistCard = ({ artist, compact = false }: ArtistCardProps) => {
   if (compact) {
     return (

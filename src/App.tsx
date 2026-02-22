@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+/** Root app: QueryClient, TooltipProvider, Toaster, Router with /, /auth, and 404. */
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>

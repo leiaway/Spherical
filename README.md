@@ -1,73 +1,46 @@
-# Welcome to your Lovable project
+# FREQUENCY — Discover Music Beyond Borders
+Created by Spherical
 
-## Project info
+A location-aware music discovery app that surfaces tracks and artists by region. Users can explore by geolocation or pick a region, create and share playlists, add friends, and discover emerging artists.
 
-**URL**: https://lovable.dev/projects/f8dfcdfe-293d-4571-bc97-30ba7655b707
+## Purpose
+Most music platforms prioritize streaming and algorithm-driven recommendations, which commodifies music and disconnects it from its cultural roots. This narrow system traps listeners in familiar taste bubbles instead of encouraging global, exploratory discovery that highlights music’s origins and cultural significance.
 
-## How can I edit this code?
+## Product Overview
+Our product, Frequency, encourages users to develop more worldly musical palettes by placing them in a random region and displaying the popular music within said region at that time, and allowing them to explore other regions and their music.
 
-There are several ways of editing your application.
+## Quick Start
+**URL**: https://frequency-global-beats.lovable.app/
 
-**Use Lovable**
+---
+## Architecture Overview
+- **Frontend**: React 18 + TypeScript, Vite, React Router, TanStack Query (React Query), shadcn/ui + Tailwind.
+- **Backend / Auth**: Supabase (Postgres, Auth, Realtime). All region, track, playlist, and social data lives in Supabase.
+- **Data flow**: UI → hooks (useRegions, usePlaylists, useGeolocation, useFriends) → Supabase client → Postgres. Realtime used for friendships and (where applicable) profile locations.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f8dfcdfe-293d-4571-bc97-30ba7655b707) and start prompting.
+### High-level data flow
 
-Changes made via Lovable will be committed automatically to this repo.
+1. **Regions & discovery**  
+   `useRegions()` loads regions; `useRegionTracks(regionId)` / `useRegionArtists(regionId)` load content. Data comes from `regions`, `tracks`, `artists` (and related tables) in Supabase.
 
-**Use your preferred IDE**
+2. **Location**  
+   `useGeolocation()` uses the browser Geolocation API, then computes the nearest region via Haversine distance (see `useGeolocation.ts`). That region can auto-select or be shown as “Near You”.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. **Playlists**  
+   `usePlaylists()` (with current user from Supabase Auth) loads the user’s playlists and shared-with-me playlists. Create/add/remove/share/delete go through mutations that call Supabase and then invalidate the relevant React Query keys.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. **Sharing**  
+   Playlist sharing is a row in `playlist_shares` (playlist_id, shared_with_user_id). `usePlaylistShares(playlistId)` returns who a playlist is shared with; share UI uses that plus `useFriends()` to show friends and “Shared” state.
 
-Follow these steps:
+5. **Friends**  
+   `useFriends()` loads friendships for the current user (both directions), enriches with profiles, and separates accepted vs pending. Realtime subscription on `friendships` keeps the list updated.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
+## Tech stack
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **Build**: Vite, TypeScript  
+- **UI**: React, shadcn-ui, Tailwind CSS  
+- **Data**: TanStack Query, Supabase (Postgres, Auth, Realtime)  
+- **Maps**: Mapbox (user map)
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/f8dfcdfe-293d-4571-bc97-30ba7655b707) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---

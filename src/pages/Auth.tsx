@@ -25,6 +25,7 @@ const authSchema = z.object({
 
 type AuthFormValues = z.infer<typeof authSchema>;
 
+/** Auth page: sign in / sign up with email or phone + password via Supabase Auth. Redirects to / on success. */
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");

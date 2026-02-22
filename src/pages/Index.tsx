@@ -14,6 +14,10 @@ import { useRegions } from "@/hooks/useRegions";
 import { Radio, LogIn, Loader2 } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
 
+/**
+ * Home page: hero, location prompt (or region picker + discovery), discovery section, sidebar (map, playlists, emerging artists, friends).
+ * Auto-selects nearest region when geolocation is available; supports skip and random region.
+ */
 const Index = () => {
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
   const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
@@ -29,7 +33,7 @@ const Index = () => {
 
   const { data: regions, isLoading: regionsLoading } = useRegions();
 
-  // Auto-select nearest region when location is detected
+  // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {
     if (nearestRegion && !currentRegionId) {
       setCurrentRegionId(nearestRegion.id);
@@ -37,7 +41,7 @@ const Index = () => {
     }
   }, [nearestRegion, currentRegionId]);
 
-  // If location is skipped, select a random region
+  // Skip location: pick a random region so user can still explore
   const handleSkipLocation = () => {
     if (regions && regions.length > 0) {
       const randomIndex = Math.floor(Math.random() * regions.length);

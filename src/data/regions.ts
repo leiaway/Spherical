@@ -1,9 +1,11 @@
+/** Static track entry for seed/static region data (data/regions.ts). */
 export interface Track {
   title: string;
   artist: string;
   genre: string;
 }
 
+/** Static region with id, region name, country, description, and sample tracks. */
 export interface RegionData {
   id: string;
   region: string;
@@ -12,6 +14,7 @@ export interface RegionData {
   tracks: Track[];
 }
 
+/** Static list of region metadata and sample tracks (used for reference/fallback; app regions come from Supabase). */
 export const regions: RegionData[] = [
   {
     id: "west-africa",
@@ -103,10 +106,16 @@ export const regions: RegionData[] = [
   }
 ];
 
+/**
+ * Returns a random region from the static regions list.
+ */
 export const getRandomRegion = (): RegionData => {
   return regions[Math.floor(Math.random() * regions.length)];
 };
 
+/**
+ * Returns the static region with the given id, or undefined.
+ */
 export const getRegionById = (id: string): RegionData | undefined => {
   return regions.find(r => r.id === id);
 };

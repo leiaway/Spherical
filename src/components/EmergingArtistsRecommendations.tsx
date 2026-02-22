@@ -8,6 +8,10 @@ interface EmergingArtistsRecommendationsProps {
   regionId?: string | null;
 }
 
+/**
+ * Sidebar recommendations: up to 4 emerging artists. When regionId is set, prefers artists from *other* regions
+ * to encourage discovery beyond the current region; then shuffles and takes 4 for variety.
+ */
 export const EmergingArtistsRecommendations = ({ regionId }: EmergingArtistsRecommendationsProps) => {
   const { data: artists, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['emerging-artists-recommendations', regionId],
@@ -19,10 +23,10 @@ export const EmergingArtistsRecommendations = ({ regionId }: EmergingArtistsReco
           regions (name, country)
         `)
         .eq('is_emerging', true)
-        .order('listener_count', { ascending: true }) // Prioritize least-played
+        .order('listener_count', { ascending: true }) // Prioritize least-played (rising talent)
         .limit(6);
 
-      // If a region is selected, show emerging artists from other regions first
+      // Prefer emerging artists from other regions when one is selected (cross-region discovery)
       if (regionId) {
         query = query.neq('region_id', regionId);
       }
@@ -31,7 +35,7 @@ export const EmergingArtistsRecommendations = ({ regionId }: EmergingArtistsReco
       
       if (error) throw error;
       
-      // Shuffle to add variety
+      // Shuffle then take 4 for variety between loads
       return data?.sort(() => Math.random() - 0.5).slice(0, 4) || [];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes

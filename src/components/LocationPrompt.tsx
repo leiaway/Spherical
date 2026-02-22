@@ -9,6 +9,9 @@ interface LocationPromptProps {
   error?: string | null;
 }
 
+/**
+ * First-run prompt: enable location (calls onEnableLocation) or skip (onSkip). Shows loading/error from geolocation.
+ */
 export const LocationPrompt = ({
   onEnableLocation,
   onSkip,

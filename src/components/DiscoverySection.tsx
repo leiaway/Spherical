@@ -14,6 +14,10 @@ interface DiscoverySectionProps {
   distance?: number;
 }
 
+/**
+ * Main discovery panel for a region: header (name, country, "Near You" / distance), description,
+ * and tabs for Popular Tracks, Local Artists, and Emerging artists. Uses useRegionTracks and useRegionArtists.
+ */
 export const DiscoverySection = ({ 
   region, 
   isLocationBased = false,

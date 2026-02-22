@@ -17,6 +17,9 @@ interface RegionCardProps {
   onExplore?: () => void;
 }
 
+/**
+ * Card for a static region (name, country, description, sample tracks). Used when region data is from static list.
+ */
 export const RegionCard = ({ 
   region, 
   country, 

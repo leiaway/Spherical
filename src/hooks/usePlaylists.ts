@@ -3,6 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+/**
+ * Playlist with optional region and track_count.
+ * @see usePlaylists, usePlaylistTracks
+ */
 export interface Playlist {
   id: string;
   user_id: string;
@@ -20,6 +24,10 @@ export interface Playlist {
   track_count?: number;
 }
 
+/**
+ * Join record for a track in a playlist, with track details.
+ * @see usePlaylistTracks
+ */
 export interface PlaylistTrack {
   id: string;
   playlist_id: string;
@@ -36,6 +44,10 @@ export interface PlaylistTrack {
   };
 }
 
+/**
+ * Record indicating a playlist was shared with a user; may include shared_with_profile.
+ * @see usePlaylistShares, sharePlaylist mutation
+ */
 export interface PlaylistShare {
   id: string;
   playlist_id: string;
@@ -48,6 +60,29 @@ export interface PlaylistShare {
   };
 }
 
+/**
+ * Main playlists hook: current user's playlists, shared-with-me playlists, and mutations.
+ * Subscribes to auth state to set currentUserId; all queries/mutations are user-scoped.
+ *
+ * **Side effects:** Subscribes to Supabase auth (onAuthStateChange). Mutations invalidate
+ * React Query cache (playlists, playlist-tracks, playlist-shares) and show toasts on success/error.
+ *
+ * @returns Object with:
+ *   - `playlists` (Playlist[]) - current user's playlists (with track_count)
+ *   - `sharedPlaylists` (Playlist[]) - playlists shared with current user
+ *   - `isLoading` (boolean) - true while either list is loading
+ *   - `currentUserId` (string | null) - authenticated user id or null
+ *   - `createPlaylist` - mutation({ name, description?, regionId?, isPublic? })
+ *   - `addTrackToPlaylist` - mutation({ playlistId, trackId })
+ *   - `removeTrackFromPlaylist` - mutation({ playlistId, trackId })
+ *   - `sharePlaylist` - mutation({ playlistId, userId })
+ *   - `deletePlaylist` - mutation(playlistId)
+ *
+ * @example
+ * const { playlists, createPlaylist, addTrackToPlaylist, currentUserId } = usePlaylists();
+ * await createPlaylist.mutateAsync({ name: 'My list', isPublic: false });
+ * await addTrackToPlaylist.mutateAsync({ playlistId: playlists[0].id, trackId: '...' });
+ */
 export const usePlaylists = () => {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { toast } = useToast();
@@ -84,7 +119,7 @@ export const usePlaylists = () => {
 
       if (error) throw error;
 
-      // Get track counts
+      // Get track counts: aggregate from playlist_tracks so we can show "N tracks" in the UI
       const playlistIds = data?.map(p => p.id) || [];
       if (playlistIds.length > 0) {
         const { data: trackCounts } = await supabase
@@ -108,7 +143,7 @@ export const usePlaylists = () => {
     enabled: !!currentUserId,
   });
 
-  // Fetch shared playlists
+  // Fetch shared playlists: playlists others have shared with the current user (playlist_shares.shared_with_user_id = me)
   const { data: sharedPlaylists, isLoading: sharedLoading } = useQuery({
     queryKey: ['shared-playlists', currentUserId],
     queryFn: async () => {
@@ -191,6 +226,7 @@ export const usePlaylists = () => {
         .limit(1)
         .maybeSingle();
 
+      // Append at end: last position + 1 (or 0 if playlist empty)
       const newPosition = (lastTrack?.position ?? -1) + 1;
 
       const { error } = await supabase
@@ -238,7 +274,7 @@ export const usePlaylists = () => {
     },
   });
 
-  // Share playlist mutation
+  // Share playlist: insert into playlist_shares (unique on playlist_id + shared_with_user_id; 23505 = duplicate)
   const sharePlaylist = useMutation({
     mutationFn: async ({ playlistId, userId }: { playlistId: string; userId: string }) => {
       const { error } = await supabase
@@ -298,7 +334,19 @@ export const usePlaylists = () => {
   };
 };
 
-// Hook to fetch tracks for a specific playlist
+/**
+ * Fetches tracks for a single playlist with full track details (artist, genre).
+ * Ordered by position. Disabled when playlistId is null.
+ *
+ * **Side effects:** Fetches from Supabase when playlistId is set (network).
+ *
+ * @param playlistId - Playlist UUID or null to disable the query
+ * @returns UseQueryResult with `data: PlaylistTrack[]` (each item has `track` with artist/genre)
+ *
+ * @example
+ * const { data: tracks } = usePlaylistTracks(selectedPlaylistId);
+ * tracks?.map(pt => pt.track?.title)
+ */
 export const usePlaylistTracks = (playlistId: string | null) => {
   return useQuery({
     queryKey: ['playlist-tracks', playlistId],
@@ -328,7 +376,19 @@ export const usePlaylistTracks = (playlistId: string | null) => {
   });
 };
 
-// Hook to fetch shares for a specific playlist
+/**
+ * Fetches playlist_shares for a playlist (who it's shared with) and enriches with profiles.
+ * Used by SharePlaylistDialog to show "Shared" state per friend. Disabled when playlistId is null.
+ *
+ * **Side effects:** Fetches from Supabase (playlist_shares + profiles) when playlistId is set.
+ *
+ * @param playlistId - Playlist UUID or null to disable the query
+ * @returns UseQueryResult with `data: PlaylistShare[]` (each has shared_with_user_id and shared_with_profile)
+ *
+ * @example
+ * const { data: shares } = usePlaylistShares(playlist.id);
+ * const sharedIds = new Set(shares?.map(s => s.shared_with_user_id) ?? []);
+ */
 export const usePlaylistShares = (playlistId: string | null) => {
   return useQuery({
     queryKey: ['playlist-shares', playlistId],

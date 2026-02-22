@@ -17,6 +17,10 @@ interface SharePlaylistDialogProps {
   playlist: Playlist;
 }
 
+/**
+ * Dialog to share a playlist with friends. Lists accepted friends and shows "Shared" for those
+ * who already have access. Uses usePlaylistShares(playlistId) and sharePlaylist mutation.
+ */
 export const SharePlaylistDialog = ({ playlist }: SharePlaylistDialogProps) => {
   const [open, setOpen] = useState(false);
   const { friends } = useFriends();
@@ -32,6 +36,7 @@ export const SharePlaylistDialog = ({ playlist }: SharePlaylistDialogProps) => {
     });
   };
 
+  // Friendship has user_id + friend_id; the "other" profile is friend_profile when I'm user_id, user_profile when I'm friend_id
   const getFriendProfile = (friendship: typeof friends[0]) => {
     if (friendship.user_id === currentUserId) {
       return friendship.friend_profile;

@@ -68,6 +68,14 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout);
 };
 
+/**
+ * Toast state reducer: ADD_TOAST, UPDATE_TOAST, DISMISS_TOAST, REMOVE_TOAST.
+ * Caps toasts at TOAST_LIMIT; dismiss schedules removal after TOAST_REMOVE_DELAY.
+ *
+ * @param state - Current toasts array
+ * @param action - One of ADD_TOAST, UPDATE_TOAST, DISMISS_TOAST, REMOVE_TOAST
+ * @returns New State (toasts array). DISMISS has side effect: addToRemoveQueue(toastId).
+ */
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
@@ -134,6 +142,14 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">;
 
+/**
+ * Imperative toast API: adds a toast to the global store and returns controls.
+ *
+ * **Side effects:** Dispatches ADD_TOAST; dismiss schedules REMOVE_TOAST after TOAST_REMOVE_DELAY.
+ *
+ * @param props - Toast props: title?, description?, action?, and optional ToastProps (variant, etc.)
+ * @returns { id: string, dismiss: () => void, update: (props) => void }
+ */
 function toast({ ...props }: Toast) {
   const id = genId();
 
@@ -163,6 +179,18 @@ function toast({ ...props }: Toast) {
   };
 }
 
+/**
+ * Hook that exposes current toast state and the toast() and dismiss() functions.
+ *
+ * **Side effects:** Subscribes to the global toast store (listeners); unsubscribe on unmount.
+ *
+ * @returns { toasts: ToasterToast[], toast: (props) => { id, dismiss, update }, dismiss: (toastId?: string) => void }
+ *
+ * @example
+ * const { toast, dismiss } = useToast();
+ * toast({ title: 'Saved!' });
+ * dismiss(); // dismiss all
+ */
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState);
 

@@ -9,6 +9,7 @@ interface TrackCardProps {
   index?: number;
 }
 
+/** Formats play count for display (e.g. 1.2M, 500K). */
 const formatPlayCount = (count: number | null): string => {
   if (!count) return '0';
   if (count >= 1000000000) return `${(count / 1000000000).toFixed(1)}B`;
@@ -17,6 +18,9 @@ const formatPlayCount = (count: number | null): string => {
   return count.toString();
 };
 
+/**
+ * Card for a single track: title, artist, genre, play count, cultural context on hover, and Add to Playlist.
+ */
 export const TrackCard = ({ track, index }: TrackCardProps) => {
   return (
     <Card className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden">

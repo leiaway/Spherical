@@ -12,6 +12,9 @@ interface SearchResult {
   avatar_url: string | null;
 }
 
+/**
+ * Search profiles by display_name and send friend requests. Excludes current user. Uses useFriends().sendFriendRequest.
+ */
 export const AddFriend = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);

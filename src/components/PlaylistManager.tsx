@@ -36,6 +36,10 @@ interface PlaylistManagerProps {
   regionName?: string;
 }
 
+/**
+ * Sidebar card: list of user playlists + shared-with-me playlists, create button, and detail dialog.
+ * When a playlist is selected, shows tracks and Share/Delete for own playlists. Uses usePlaylists, usePlaylistTracks.
+ */
 export const PlaylistManager = ({ regionId, regionName }: PlaylistManagerProps) => {
   const { playlists, sharedPlaylists, isLoading, deletePlaylist, currentUserId } = usePlaylists();
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
@@ -59,6 +63,7 @@ export const PlaylistManager = ({ regionId, regionName }: PlaylistManagerProps) 
     );
   }
 
+  // Own playlists first, then shared-with-me (marked isShared so we don't show Share/Delete for them)
   const allPlaylists = [...playlists, ...sharedPlaylists.map(p => ({ ...p, isShared: true }))];
 
   return (
