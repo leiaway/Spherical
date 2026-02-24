@@ -21,6 +21,14 @@ For each entry:
 
 ## Log entries
 
+### 2025-02-24 — Test infrastructure setup
+
+- **Files**: `vitest.config.ts`, `src/test/setupTests.ts`, `src/example.test.ts`, updates to `README.md` (Testing section) and `docs/TECHNICAL_DEBT_AUDIT.md` (Test Setup & Commands appendix).
+- **Description**: Introduced a minimal testing infrastructure using Vitest (jsdom), React Testing Library, and a smoke test. Added documentation on how to run tests and where to place new `*.test.ts(x)`/`*.spec.ts(x)` files.
+- **Requirements / story**: Technical Debt — Absence of Test Coverage (GitHub Issue #164, Sub-issue #165: Configure Testing Infrastructure).
+
+---
+
 ### 2025-02-21 — Documentation and JSDoc pass
 
 - **Files**: README.md, AI_GENERATION_LOG.md, `src/hooks/*.ts`, `src/lib/utils.ts`, `src/data/regions.ts`, `src/integrations/supabase/client.ts`, app components under `src/components/` (e.g. SharePlaylistDialog, DiscoverySection, PlaylistManager, CreatePlaylistDialog, AddToPlaylistButton, RegionPicker, TrackCard, etc.).
