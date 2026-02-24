@@ -58,6 +58,8 @@ Features are numbered **F1–F21** (e.g. F1 Geo-tracking, F3 Curated playlists, 
 
 - **Install dependencies**: `npm install`
 - **Run all tests**: `npm run test`
+- **Watch mode**: `npm run test:watch`
+- **Coverage**: `npm run test:coverage`
 
 Vitest discovers test files matching `**/*.{test,spec}.?(c|m)[jt]s?(x)`. Use colocated test files like:
 
@@ -65,3 +67,27 @@ Vitest discovers test files matching `**/*.{test,spec}.?(c|m)[jt]s?(x)`. Use col
 - Components: `SomeComponent.test.tsx`
 
 See `src/example.test.ts` for a minimal smoke test example.
+
+### What was added (Task 1 → Task 2)
+
+This repo previously had **no automated tests**. The following testing + critical-path coverage was added.
+
+- **Test infrastructure**
+  - `vitest.config.ts` (Vitest + jsdom config, coverage config)
+  - `src/test/setupTests.ts` (RTL jest-dom, fetch polyfill, `ResizeObserver` polyfill, MSW lifecycle hooks)
+  - `src/example.test.ts` (smoke test)
+
+- **MSW (API mocking in tests)**
+  - `src/test/msw/server.ts` (+ handlers)
+  - `src/test/msw/auth-msw.test.ts`
+  - `src/test/msw/playlist-msw.test.ts`
+  - `src/test/msw/friends-msw.test.ts`
+
+- **Critical path component tests**
+  - Auth: `src/pages/Auth.test.tsx`
+  - Playlists: `src/components/CreatePlaylistDialog.test.tsx`, `src/components/EditPlaylistDialog.test.tsx`, `src/components/PlaylistManager.test.tsx`, `src/components/SharePlaylistDialog.test.tsx`
+  - Friends: `src/components/AddFriend.test.tsx`, `src/components/FriendsList.test.tsx`
+
+- **Small product/accessibility tweaks to enable stable tests**
+  - Added `aria-label`s for icon-only actions (e.g. playlist “More actions”, friend accept/reject buttons)
+  - Added playlist edit UI via `src/components/EditPlaylistDialog.tsx` and wired it into `PlaylistManager`

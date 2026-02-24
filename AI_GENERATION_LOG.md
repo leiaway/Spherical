@@ -29,6 +29,35 @@ For each entry:
 
 ---
 
+### 2026-02-24 — Critical-path tests + MSW + playlist edit flow
+
+- **Files**:
+  - **Tests**:
+    - `src/pages/Auth.test.tsx`
+    - `src/components/CreatePlaylistDialog.test.tsx`
+    - `src/components/EditPlaylistDialog.test.tsx`
+    - `src/components/PlaylistManager.test.tsx`
+    - `src/components/SharePlaylistDialog.test.tsx`
+    - `src/components/AddFriend.test.tsx`
+    - `src/components/FriendsList.test.tsx`
+    - `src/test/msw/auth-msw.test.ts`
+    - `src/test/msw/playlist-msw.test.ts`
+    - `src/test/msw/friends-msw.test.ts`
+  - **Test utilities / mocking**:
+    - `src/test/msw/server.ts` (test-only handlers + server)
+    - `src/test/setupTests.ts` (MSW lifecycle + DOM polyfills for Radix/shadcn components)
+  - **Feature / production code updated to support critical path flows**:
+    - `src/components/EditPlaylistDialog.tsx` (new: edit playlist dialog UI)
+    - `src/hooks/usePlaylists.ts` (new: `updatePlaylist` mutation)
+    - `src/components/PlaylistManager.tsx` (wired in edit dialog; added accessibility label for “More actions” trigger)
+    - `src/components/FriendsList.tsx` (added accessibility labels for accept/reject icon buttons)
+  - **Docs**:
+    - `README.md` (expanded Testing docs + “Task 1 → Task 2” summary)
+- **Description**: Added critical-path test coverage for auth, playlist CRUD/sharing, and friend request flows using Vitest + React Testing Library. Introduced MSW-based tests and global MSW setup. Added a playlist edit feature (`EditPlaylistDialog` + `usePlaylists().updatePlaylist`) and small accessibility improvements (`aria-label`s) to make UI testable and keyboard/screen-reader friendly.
+- **Requirements / story**: Technical Debt — Absence of Test Coverage (GitHub Issue #164, Sub-issue #166: Implement Critical Path Tests; delta: “Introduce MSW and migrate at least one auth + one playlist + one friend test to use it.”). Playlist edit aligns with F3 curated playlists.
+
+---
+
 ### 2025-02-21 — Documentation and JSDoc pass
 
 - **Files**: README.md, AI_GENERATION_LOG.md, `src/hooks/*.ts`, `src/lib/utils.ts`, `src/data/regions.ts`, `src/integrations/supabase/client.ts`, app components under `src/components/` (e.g. SharePlaylistDialog, DiscoverySection, PlaylistManager, CreatePlaylistDialog, AddToPlaylistButton, RegionPicker, TrackCard, etc.).

@@ -89,6 +89,7 @@ export const FriendsList = () => {
                       variant="ghost"
                       className="w-7 h-7 text-green-500 hover:text-green-400 hover:bg-green-500/10"
                       onClick={() => acceptFriendRequest(request.id)}
+                      aria-label="Accept friend request"
                     >
                       <Check className="w-4 h-4" />
                     </Button>
@@ -97,6 +98,7 @@ export const FriendsList = () => {
                       variant="ghost"
                       className="w-7 h-7 text-destructive hover:bg-destructive/10"
                       onClick={() => rejectFriendRequest(request.id)}
+                      aria-label="Reject friend request"
                     >
                       <X className="w-4 h-4" />
                     </Button>

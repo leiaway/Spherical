@@ -208,6 +208,45 @@ export const usePlaylists = () => {
     },
   });
 
+  // Update playlist mutation
+  const updatePlaylist = useMutation({
+    mutationFn: async ({
+      id,
+      name,
+      description,
+      regionId,
+      isPublic,
+    }: {
+      id: string;
+      name: string;
+      description?: string;
+      regionId?: string | null;
+      isPublic?: boolean;
+    }) => {
+      if (!currentUserId) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('playlists')
+        .update({
+          name,
+          description: description ?? null,
+          region_id: regionId ?? null,
+          is_public: isPublic ?? false,
+        })
+        .eq('id', id)
+        .eq('user_id', currentUserId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['playlists'] });
+      toast({ title: 'Playlist updated!' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to update playlist', variant: 'destructive' });
+    },
+  });
+
   // Add track to playlist mutation
   const addTrackToPlaylist = useMutation({
     mutationFn: async ({ playlistId, trackId }: { playlistId: string; trackId: string }) => {
@@ -329,6 +368,7 @@ export const usePlaylists = () => {
     isLoading: playlistsLoading || sharedLoading,
     currentUserId,
     createPlaylist,
+    updatePlaylist,
     addTrackToPlaylist,
     removeTrackFromPlaylist,
     sharePlaylist,

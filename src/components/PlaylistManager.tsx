@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { usePlaylists, usePlaylistTracks, type Playlist } from '@/hooks/usePlaylists';
 import { CreatePlaylistDialog } from './CreatePlaylistDialog';
+import { EditPlaylistDialog } from './EditPlaylistDialog';
 import { SharePlaylistDialog } from './SharePlaylistDialog';
 import { TrackCard } from './TrackCard';
 
@@ -132,10 +133,16 @@ export const PlaylistManager = ({ regionId, regionName }: PlaylistManagerProps) 
 
                     {!(playlist as any).isShared && (
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <EditPlaylistDialog playlist={playlist as Playlist} />
                         <SharePlaylistDialog playlist={playlist} />
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              aria-label="More actions"
+                            >
                               <MoreVertical className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
