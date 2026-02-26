@@ -97,7 +97,10 @@ const Index = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem disabled className="text-sm">
+                  <DropdownMenuItem
+                    onClick={() => navigate("/profile")}
+                    className="text-sm"
+                  >
                     {user.email || user.phone}
                   </DropdownMenuItem>
                   <DropdownMenuItem
