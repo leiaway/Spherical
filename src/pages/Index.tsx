@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { LocationPrompt } from "@/components/LocationPrompt";
 import { DiscoverySection } from "@/components/DiscoverySection";
 import { RegionPicker } from "@/components/RegionPicker";
@@ -11,7 +17,8 @@ import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsReco
 import { PlaylistManager } from "@/components/PlaylistManager";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
-import { Radio, LogIn, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Radio, LogIn, LogOut, User as UserIcon, Loader2 } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
 
 /**
@@ -22,10 +29,10 @@ import heroGlobe from "@/assets/hero-globe.jpg";
 const Index = () => {
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
   const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
-  
+  const navigate = useNavigate();
+
   const {
     latitude,
-    longitude,
     error: locationError,
     loading: locationLoading,
     nearestRegion,
@@ -33,6 +40,7 @@ const Index = () => {
   } = useGeolocation();
 
   const { data: regions, isLoading: regionsLoading } = useRegions();
+  const { user, loading: authLoading, signOut } = useAuth();
 
   // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {
@@ -78,12 +86,40 @@ const Index = () => {
               <Radio className="w-8 h-8 text-primary animate-pulse" />
               <span className="text-xl font-bold text-foreground">FREQUENCY</span>
             </div>
-            <Link to="/auth">
-              <Button variant="outline" className="gap-2">
-                <LogIn className="w-4 h-4" />
-                Sign In
-              </Button>
-            </Link>
+            {authLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            ) : user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="gap-2">
+                    <UserIcon className="w-4 h-4" />
+                    {user.email || user.phone || "Account"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem disabled className="text-sm">
+                    {user.email || user.phone}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      signOut();
+                      navigate("/");
+                    }}
+                    className="gap-2 text-red-600"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" className="gap-2">
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
 
           <div className="max-w-3xl mx-auto text-center space-y-6">
