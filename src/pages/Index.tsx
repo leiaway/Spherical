@@ -20,6 +20,7 @@ import { useRegions } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
 import { Radio, LogIn, LogOut, User as UserIcon, Loader2 } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Home page: hero, location prompt (or region picker + discovery), discovery section, sidebar (map, playlists, emerging artists, friends).
@@ -29,6 +30,7 @@ import heroGlobe from "@/assets/hero-globe.jpg";
 const Index = () => {
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
   const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
+  const [loadingPreference, setLoadingPreference] = useState(true);
   const navigate = useNavigate();
 
   const {
@@ -42,21 +44,76 @@ const Index = () => {
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { user, loading: authLoading, signOut } = useAuth();
 
+  // Load location preference from database on mount
+  useEffect(() => {
+    const loadLocationPreference = async () => {
+      if (!user) {
+        setLoadingPreference(false);
+        return;
+      }
+
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('location_enabled')
+          .eq('id', user.id)
+          .single();
+
+        // If user has already made a choice (location_enabled is not null), dismiss the prompt
+        if (data?.location_enabled !== null) {
+          setLocationPromptDismissed(true);
+        }
+      } catch (error) {
+        console.error('Failed to load location preference:', error);
+      } finally {
+        setLoadingPreference(false);
+      }
+    };
+
+    loadLocationPreference();
+  }, [user]);
+
   // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {
     if (nearestRegion && !currentRegionId) {
       setCurrentRegionId(nearestRegion.id);
       setLocationPromptDismissed(true);
+      // Save that location is enabled
+      if (user) {
+        const savePreference = async () => {
+          try {
+            await supabase
+              .from('profiles')
+              .update({ location_enabled: true })
+              .eq('id', user.id);
+          } catch (error) {
+            console.error('Failed to save location preference:', error);
+          }
+        };
+        savePreference();
+      }
     }
-  }, [nearestRegion, currentRegionId]);
+  }, [nearestRegion, currentRegionId, user]);
 
   // Skip location: pick a random region so user can still explore
-  const handleSkipLocation = () => {
+  const handleSkipLocation = async () => {
     if (regions && regions.length > 0) {
       const randomIndex = Math.floor(Math.random() * regions.length);
       setCurrentRegionId(regions[randomIndex].id);
     }
     setLocationPromptDismissed(true);
+
+    // Save that user chose to explore globally (location disabled)
+    if (user) {
+      try {
+        await supabase
+          .from('profiles')
+          .update({ location_enabled: false })
+          .eq('id', user.id);
+      } catch (error) {
+        console.error('Failed to save location preference:', error);
+      }
+    }
   };
 
   const handleRandomRegion = () => {

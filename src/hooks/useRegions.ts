@@ -12,6 +12,9 @@ export interface Track {
   title: string;
   play_count: number | null;
   cultural_context: string | null;
+  audio_url: string | null;
+  cover_image_url: string | null;
+  duration_seconds: number | null;
   artist: {
     id: string;
     name: string;
@@ -102,6 +105,9 @@ export const useRegionTracks = (regionId: string | null) => {
           title,
           play_count,
           cultural_context,
+          audio_url,
+          cover_image_url,
+          duration_seconds,
           artist:artists(id, name, is_emerging),
           genre:genres(id, name)
         `)
