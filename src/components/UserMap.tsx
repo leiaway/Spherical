@@ -4,7 +4,9 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { MapPin, Users, Key } from 'lucide-react';
+import { MapPin, Users, Key, LogIn } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 /** Requirement: F4 (user map / snap map stories). See docs/REQUIREMENTS_REFERENCE.md */
 
@@ -31,6 +33,23 @@ export const UserMap = ({ className }: UserMapProps) => {
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [tokenSubmitted, setTokenSubmitted] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
+  const { user } = useAuth();
+
+  // Reset tokenSubmitted when user logs out (but keep token in localStorage)
+  useEffect(() => {
+    if (!user) {
+      setTokenSubmitted(false);
+    }
+  }, [user]);
+
+  // Load token from localStorage on mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem('mapbox_token');
+    if (savedToken) {
+      setMapboxToken(savedToken);
+      setTokenSubmitted(true);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -130,10 +149,39 @@ export const UserMap = ({ className }: UserMapProps) => {
   const handleTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mapboxToken.trim()) {
+      localStorage.setItem('mapbox_token', mapboxToken.trim());
       setTokenSubmitted(true);
       setMapError(null);
     }
   };
+
+  if (!user) {
+    return (
+      <div className={`rounded-xl border border-border bg-card p-6 ${className}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <MapPin className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">User Map</h3>
+            <p className="text-sm text-muted-foreground">See listeners around the world</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Sign in to view the map of listeners around the world.
+          </p>
+          <Link to="/auth">
+            <Button className="w-full gap-2">
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (!tokenSubmitted) {
     return (
@@ -147,7 +195,7 @@ export const UserMap = ({ className }: UserMapProps) => {
             <p className="text-sm text-muted-foreground">See listeners around the world</p>
           </div>
         </div>
-        
+
         <form onSubmit={handleTokenSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm text-muted-foreground flex items-center gap-2">
@@ -163,9 +211,9 @@ export const UserMap = ({ className }: UserMapProps) => {
             />
             <p className="text-xs text-muted-foreground">
               Get your free token at{' '}
-              <a 
-                href="https://mapbox.com" 
-                target="_blank" 
+              <a
+                href="https://mapbox.com"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
