@@ -18,9 +18,9 @@ import { PlaylistManager } from "@/components/PlaylistManager";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocationPreference } from "@/hooks/useLocationPreference";
 import { Radio, LogIn, LogOut, User as UserIcon, Loader2 } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
-import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Home page: hero, location prompt (or region picker + discovery), discovery section, sidebar (map, playlists, emerging artists, friends).
@@ -29,8 +29,6 @@ import { supabase } from "@/integrations/supabase/client";
  */
 const Index = () => {
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
-  const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
-  const [loadingPreference, setLoadingPreference] = useState(true);
   const navigate = useNavigate();
 
   const {
@@ -43,57 +41,19 @@ const Index = () => {
 
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { user, loading: authLoading, signOut } = useAuth();
-
-  // Load location preference from database on mount
-  useEffect(() => {
-    const loadLocationPreference = async () => {
-      if (!user) {
-        setLoadingPreference(false);
-        return;
-      }
-
-      try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('location_enabled')
-          .eq('id', user.id)
-          .single();
-
-        // If user has already made a choice (location_enabled is not null), dismiss the prompt
-        if (data?.location_enabled !== null) {
-          setLocationPromptDismissed(true);
-        }
-      } catch (error) {
-        console.error('Failed to load location preference:', error);
-      } finally {
-        setLoadingPreference(false);
-      }
-    };
-
-    loadLocationPreference();
-  }, [user]);
+  const {
+    locationPromptDismissed,
+    loadingPreference,
+    dismissPrompt,
+  } = useLocationPreference(user?.id);
 
   // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {
     if (nearestRegion && !currentRegionId) {
       setCurrentRegionId(nearestRegion.id);
-      setLocationPromptDismissed(true);
-      // Save that location is enabled
-      if (user) {
-        const savePreference = async () => {
-          try {
-            await supabase
-              .from('profiles')
-              .update({ location_enabled: true })
-              .eq('id', user.id);
-          } catch (error) {
-            console.error('Failed to save location preference:', error);
-          }
-        };
-        savePreference();
-      }
+      dismissPrompt(true);
     }
-  }, [nearestRegion, currentRegionId, user]);
+  }, [nearestRegion, currentRegionId]);
 
   // Skip location: pick a random region so user can still explore
   const handleSkipLocation = async () => {
@@ -101,19 +61,7 @@ const Index = () => {
       const randomIndex = Math.floor(Math.random() * regions.length);
       setCurrentRegionId(regions[randomIndex].id);
     }
-    setLocationPromptDismissed(true);
-
-    // Save that user chose to explore globally (location disabled)
-    if (user) {
-      try {
-        await supabase
-          .from('profiles')
-          .update({ location_enabled: false })
-          .eq('id', user.id);
-      } catch (error) {
-        console.error('Failed to save location preference:', error);
-      }
-    }
+    await dismissPrompt(false);
   };
 
   const handleRandomRegion = () => {
@@ -125,7 +73,7 @@ const Index = () => {
   };
 
   const currentRegion = regions?.find((r) => r.id === currentRegionId);
-  const showLocationPrompt = !locationPromptDismissed && !latitude && !regionsLoading;
+  const showLocationPrompt = !locationPromptDismissed && !latitude && !regionsLoading && !loadingPreference;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-background/95">
