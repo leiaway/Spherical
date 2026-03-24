@@ -7,6 +7,7 @@ import { AddToPlaylistButton } from "./AddToPlaylistButton";
 interface TrackCardProps {
   track: Track;
   index?: number;
+  contextTag?: "Local" | "Home";
 }
 
 /** Formats play count for display (e.g. 1.2M, 500K). */
@@ -21,7 +22,7 @@ const formatPlayCount = (count: number | null): string => {
 /**
  * Card for a single track: title, artist, genre, play count, cultural context on hover, and Add to Playlist.
  */
-export const TrackCard = ({ track, index }: TrackCardProps) => {
+export const TrackCard = ({ track, index, contextTag }: TrackCardProps) => {
   return (
     <Card className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden">
       <CardContent className="p-4">
@@ -57,6 +58,16 @@ export const TrackCard = ({ track, index }: TrackCardProps) => {
             {track.genre && (
               <Badge variant="outline" className="text-xs">
                 {track.genre.name}
+              </Badge>
+            )}
+            {contextTag === "Home" && (
+              <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/20">
+                From Home
+              </Badge>
+            )}
+            {contextTag === "Local" && (
+              <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
+                Local Hit
               </Badge>
             )}
           </div>

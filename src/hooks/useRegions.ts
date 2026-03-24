@@ -170,3 +170,29 @@ export const useEmergingArtists = () => {
     },
   });
 };
+
+/**
+ * Fetches a single region entity based on an exact country string match.
+ * Useful for matching user profile strings to system regions (F1.2 requirement).
+ * @param country The exact string representing the region's country.
+ * @returns UseQueryResult with `data: Region | null`
+ */
+export const useRegionByCountry = (country: string | null) => {
+  return useQuery({
+    queryKey: ['region', 'country', country],
+    queryFn: async () => {
+      if (!country) return null;
+
+      const { data, error } = await supabase
+        .from('regions')
+        .select('id, name, country, description, latitude, longitude')
+        .eq('country', country)
+        .maybeSingle(); // In case there is no mapping
+
+      if (error) throw error;
+      return data as Region | null;
+    },
+    enabled: !!country,
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+  });
+};

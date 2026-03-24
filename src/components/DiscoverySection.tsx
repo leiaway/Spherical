@@ -8,12 +8,13 @@ import { ArtistCard } from "./ArtistCard";
 import { useRegionTracks, useRegionArtists, type Region } from "@/hooks/useRegions";
 import { Music, Users, MapPin, Sparkles, RefreshCw } from "lucide-react";
 
-/** Requirement: F5 (cultural recommendations by region), F8 (emerging artists tab). See docs/REQUIREMENTS_REFERENCE.md */
+/** Requirement: F1 (geo-tracking local mix), F5 (cultural recommendations by region), F8 (emerging artists tab). See docs/REQUIREMENTS_REFERENCE.md */
 
 interface DiscoverySectionProps {
   region: Region;
   isLocationBased?: boolean;
   distance?: number;
+  homeRegion?: Region | null;
 }
 
 /**
@@ -23,14 +24,43 @@ interface DiscoverySectionProps {
 export const DiscoverySection = ({ 
   region, 
   isLocationBased = false,
-  distance 
+  distance,
+  homeRegion,
 }: DiscoverySectionProps) => {
   const [activeTab, setActiveTab] = useState("tracks");
   const { data: tracks, isLoading: tracksLoading } = useRegionTracks(region.id);
   const { data: artists, isLoading: artistsLoading } = useRegionArtists(region.id);
 
-  const emergingArtists = artists?.filter(a => a.is_emerging) || [];
-  const popularArtists = artists?.filter(a => !a.is_emerging) || [];
+  // F1.2 — Fetch home-region content if user has a different home country
+  const homeRegionId = homeRegion && homeRegion.id !== region.id ? homeRegion.id : null;
+  const { data: homeTracks } = useRegionTracks(homeRegionId);
+  const { data: homeArtists } = useRegionArtists(homeRegionId);
+
+  /** Interleave two arrays: [A, B, A, B, ...], appending remaining items from the longer one. */
+  function interleave<T>(primary: T[], secondary: T[]): Array<T & { contextTag: "Local" | "Home" }> {
+    const tagged = primary.map(item => ({ ...item, contextTag: "Local" as const }));
+    const taggedHome = secondary.map(item => ({ ...item, contextTag: "Home" as const }));
+    const result: Array<T & { contextTag: "Local" | "Home" }> = [];
+    const maxLen = Math.max(tagged.length, taggedHome.length);
+    for (let i = 0; i < maxLen; i++) {
+      if (tagged[i]) result.push(tagged[i]);
+      if (taggedHome[i]) result.push(taggedHome[i]);
+    }
+    return result;
+  }
+
+  const mixedTracks = homeRegionId && homeTracks?.length
+    ? interleave(tracks ?? [], homeTracks)
+    : (tracks ?? []).map(t => ({ ...t, contextTag: undefined as undefined }));
+
+  const allArtists = homeRegionId && homeArtists?.length
+    ? interleave(artists ?? [], homeArtists)
+    : (artists ?? []).map(a => ({ ...a, contextTag: undefined as undefined }));
+
+  const emergingArtists = allArtists.filter(a => a.is_emerging);
+  const popularArtists = allArtists.filter(a => !a.is_emerging);
+
+  const isMixed = !!homeRegionId;
 
   return (
     <section className="space-y-6">
@@ -68,11 +98,11 @@ export const DiscoverySection = ({
         <TabsList className="bg-muted/50 p-1">
           <TabsTrigger value="tracks" className="gap-2 data-[state=active]:bg-card">
             <Music className="w-4 h-4" />
-            Popular Tracks
+            {isMixed ? "Blended Tracks" : "Popular Tracks"}
           </TabsTrigger>
           <TabsTrigger value="artists" className="gap-2 data-[state=active]:bg-card">
             <Users className="w-4 h-4" />
-            Local Artists
+            {isMixed ? "All Artists" : "Local Artists"}
           </TabsTrigger>
           {emergingArtists.length > 0 && (
             <TabsTrigger value="emerging" className="gap-2 data-[state=active]:bg-card">
@@ -90,10 +120,15 @@ export const DiscoverySection = ({
                 <Skeleton key={i} className="h-24 w-full rounded-xl" />
               ))}
             </div>
-          ) : tracks && tracks.length > 0 ? (
+          ) : mixedTracks.length > 0 ? (
             <div className="space-y-3">
-              {tracks.map((track, index) => (
-                <TrackCard key={track.id} track={track} index={index} />
+              {isMixed && (
+                <p className="text-xs text-muted-foreground">
+                  Showing a mix of local hits and music from your home region
+                </p>
+              )}
+              {mixedTracks.map((track, index) => (
+                <TrackCard key={`${track.id}-${index}`} track={track} index={index} contextTag={track.contextTag} />
               ))}
             </div>
           ) : (
@@ -112,10 +147,10 @@ export const DiscoverySection = ({
                 <Skeleton key={i} className="h-24 w-full rounded-xl" />
               ))}
             </div>
-          ) : popularArtists && popularArtists.length > 0 ? (
+          ) : popularArtists.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-4">
               {popularArtists.map((artist) => (
-                <ArtistCard key={artist.id} artist={artist} />
+                <ArtistCard key={`${artist.id}-${artist.contextTag}`} artist={artist} contextTag={artist.contextTag} />
               ))}
             </div>
           ) : (
@@ -141,7 +176,7 @@ export const DiscoverySection = ({
               </p>
               <div className="grid md:grid-cols-2 gap-4">
                 {emergingArtists.map((artist) => (
-                  <ArtistCard key={artist.id} artist={artist} />
+                  <ArtistCard key={`${artist.id}-${artist.contextTag}`} artist={artist} contextTag={artist.contextTag} />
                 ))}
               </div>
             </>

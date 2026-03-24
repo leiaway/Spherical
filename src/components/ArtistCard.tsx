@@ -11,6 +11,7 @@ interface ArtistCardProps {
     } | null;
   };
   compact?: boolean;
+  contextTag?: "Local" | "Home";
 }
 
 /** Formats listener count for display (e.g. 1.2M, 50K). */
@@ -25,7 +26,7 @@ const formatListenerCount = (count: number | null): string => {
  * Card for an artist: image, name, listener count, optional region, and "Rising" badge when is_emerging.
  * Supports compact mode for list layouts.
  */
-export const ArtistCard = ({ artist, compact = false }: ArtistCardProps) => {
+export const ArtistCard = ({ artist, compact = false, contextTag }: ArtistCardProps) => {
   if (compact) {
     return (
       <div className="group flex items-center gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer">
@@ -115,6 +116,13 @@ export const ArtistCard = ({ artist, compact = false }: ArtistCardProps) => {
                 </span>
               )}
             </div>
+            {contextTag && (
+              <div className="mt-2">
+                <Badge variant="secondary" className={`text-xs ${contextTag === "Home" ? "bg-blue-500/10 text-blue-500" : "bg-emerald-500/10 text-emerald-500"}`}>
+                  {contextTag === "Home" ? "From Home" : "Local Artist"}
+                </Badge>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>

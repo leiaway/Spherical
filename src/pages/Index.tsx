@@ -11,6 +11,8 @@ import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsReco
 import { PlaylistManager } from "@/components/PlaylistManager";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
+import { useRegionByCountry } from "@/hooks/useRegions";
+import { useProfile } from "@/hooks/useProfile";
 import { Radio, LogIn, Loader2 } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
 
@@ -33,6 +35,10 @@ const Index = () => {
   } = useGeolocation();
 
   const { data: regions, isLoading: regionsLoading } = useRegions();
+
+  // F1.2 — Resolve user's home country to a region for mixing
+  const { data: profile } = useProfile();
+  const { data: homeRegion } = useRegionByCountry(profile?.home_country ?? null);
 
   // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {
@@ -134,6 +140,7 @@ const Index = () => {
                     region={currentRegion}
                     isLocationBased={nearestRegion?.id === currentRegionId}
                     distance={nearestRegion?.id === currentRegionId ? nearestRegion.distance : undefined}
+                    homeRegion={homeRegion}
                   />
                 )}
               </div>
