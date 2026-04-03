@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Social from "./pages/Social";
 import NotFound from "./pages/NotFound";
+import { AudioProvider } from "@/contexts/AudioContext";
+import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 
 const queryClient = new QueryClient();
 

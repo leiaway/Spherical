@@ -1,12 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Sparkles, Music } from "lucide-react";
+import { Play, Pause, Sparkles, Music } from "lucide-react";
 import type { Track } from "@/hooks/useRegions";
 import { AddToPlaylistButton } from "./AddToPlaylistButton";
+import { useAudio } from "@/contexts/AudioContext";
 
 interface TrackCardProps {
   track: Track;
   index?: number;
+  contextTag?: "Local" | "Home";
+  onPlay?: (trackId: string) => void;
 }
 
 /** Formats play count for display (e.g. 1.2M, 500K). */
@@ -21,22 +24,39 @@ const formatPlayCount = (count: number | null): string => {
 /**
  * Card for a single track: title, artist, genre, play count, cultural context on hover, and Add to Playlist.
  */
-export const TrackCard = ({ track, index }: TrackCardProps) => {
+export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) => {
   return (
-    <Card className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden">
+    <Card
+      className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden"
+      onClick={() => onPlay?.(track.id)}
+    >
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           {/* Track Number / Play Icon */}
-          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-            {index !== undefined ? (
-              <span className="text-muted-foreground group-hover:hidden font-semibold">
-                {index + 1}
-              </span>
-            ) : (
-              <Music className="w-5 h-5 text-muted-foreground group-hover:hidden" />
+          <button
+            onClick={() => play(track)}
+            className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors hover:bg-primary/20"
+            aria-label="Play track"
+          >
+            {!isCurrentTrack && (
+              <>
+                {index !== undefined ? (
+                  <span className="text-muted-foreground group-hover:hidden font-semibold">
+                    {index + 1}
+                  </span>
+                ) : (
+                  <Music className="w-5 h-5 text-muted-foreground group-hover:hidden" />
+                )}
+                <Play className="w-5 h-5 text-primary hidden group-hover:block" />
+              </>
             )}
-            <Play className="w-5 h-5 text-primary hidden group-hover:block" />
-          </div>
+            {isCurrentTrack && isPlaying && (
+              <Pause className="w-5 h-5 text-primary" />
+            )}
+            {isCurrentTrack && !isPlaying && (
+              <Play className="w-5 h-5 text-primary" />
+            )}
+          </button>
 
           {/* Track Info */}
           <div className="flex-1 min-w-0 space-y-1">
@@ -57,6 +77,16 @@ export const TrackCard = ({ track, index }: TrackCardProps) => {
             {track.genre && (
               <Badge variant="outline" className="text-xs">
                 {track.genre.name}
+              </Badge>
+            )}
+            {contextTag === "Home" && (
+              <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/20">
+                From Home
+              </Badge>
+            )}
+            {contextTag === "Local" && (
+              <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
+                Local Hit
               </Badge>
             )}
           </div>
