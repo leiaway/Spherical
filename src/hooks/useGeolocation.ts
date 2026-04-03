@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { calculateDistance, InvalidCoordinateError } from '@/lib/calculateDistance';
 
 /** Requirement: F1 (geo-tracking), F2 (location preference in recommendations). See docs/REQUIREMENTS_REFERENCE.md */
 
@@ -55,34 +56,6 @@ export const useGeolocation = () => {
 
   const [nearestRegion, setNearestRegion] = useState<NearestRegion | null>(null);
 
-  /**
-   * Haversine formula: great-circle distance between two lat/lon points in km.
-   * Uses Earth's radius 6371 km; converts degrees to radians for sin/cos.
-   * @param lat1 - Latitude of first point (degrees)
-   * @param lon1 - Longitude of first point (degrees)
-   * @param lat2 - Latitude of second point (degrees)
-   * @param lon2 - Longitude of second point (degrees)
-   * @returns Distance in kilometres (non-negative)
-   */
-  const calculateDistance = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ): number => {
-    const R = 6371; // Earth's radius in km
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
-
   /** Loads all regions and picks the one with smallest Haversine distance to (lat, lon). */
   const findNearestRegion = useCallback(async (lat: number, lon: number) => {
     try {
@@ -102,7 +75,8 @@ export const useGeolocation = () => {
               lat,
               lon,
               Number(region.latitude),
-              Number(region.longitude)
+              Number(region.longitude),
+              `regions.id=${region.id}`
             );
             if (distance < minDistance) {
               minDistance = distance;
@@ -121,6 +95,9 @@ export const useGeolocation = () => {
       }
     } catch (err) {
       console.error('Error finding nearest region:', err);
+      if (err instanceof InvalidCoordinateError) {
+        throw err;
+      }
     }
   }, []);
 
