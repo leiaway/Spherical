@@ -9,6 +9,7 @@ interface TrackCardProps {
   track: Track;
   index?: number;
   contextTag?: "Local" | "Home";
+  onPlay?: (trackId: string) => void;
 }
 
 /** Formats play count for display (e.g. 1.2M, 500K). */
@@ -23,12 +24,12 @@ const formatPlayCount = (count: number | null): string => {
 /**
  * Card for a single track: title, artist, genre, play count, cultural context on hover, and Add to Playlist.
  */
-export const TrackCard = ({ track, index }: TrackCardProps) => {
-  const { currentTrack, isPlaying, play } = useAudio();
-  const isCurrentTrack = currentTrack?.id === track.id;
-
+export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) => {
   return (
-    <Card className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 overflow-hidden">
+    <Card
+      className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden"
+      onClick={() => onPlay?.(track.id)}
+    >
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           {/* Track Number / Play Icon */}

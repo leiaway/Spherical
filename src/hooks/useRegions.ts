@@ -178,6 +178,66 @@ export const useEmergingArtists = () => {
 };
 
 /**
+ * Fetches all genres from Supabase, ordered by name.
+ * Used to populate genre dropdowns in track upload forms (F1.4).
+ *
+ * @returns UseQueryResult with `data: Genre[]`
+ */
+export interface Genre {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+export const useGenres = () => {
+  return useQuery({
+    queryKey: ['genres'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('genres')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Genre[];
+    },
+  });
+};
+
+/**
+ * Fetches festivals for a given region, ordered by typical_month.
+ * Used in the Mood & Festivals discovery tab (F1.6).
+ *
+ * @param regionId - Region UUID or null to disable
+ * @returns UseQueryResult with festival rows including joined genre
+ */
+export interface Festival {
+  id: string;
+  name: string;
+  region_id: string;
+  description: string | null;
+  typical_month: number | null;
+  mood: string | null;
+  genre_id: string | null;
+  genre: { id: string; name: string } | null;
+}
+
+export const useFestivals = (regionId: string | null) => {
+  return useQuery({
+    queryKey: ['festivals', regionId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('festivals')
+        .select('*, genre:genres(id, name)')
+        .eq('region_id', regionId!)
+        .order('typical_month');
+      if (error) throw error;
+      return data as Festival[];
+    },
+    enabled: !!regionId,
+  });
+};
+
+/**
  * Fetches a single region entity based on an exact country string match.
  * Useful for matching user profile strings to system regions (F1.2 requirement).
  * @param country The exact string representing the region's country.

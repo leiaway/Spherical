@@ -15,6 +15,8 @@ import { FriendsList } from "@/components/FriendsList";
 import { AddFriend } from "@/components/AddFriend";
 import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsRecommendations";
 import { PlaylistManager } from "@/components/PlaylistManager";
+import { TrackUploadDialog } from "@/components/TrackUploadDialog";
+import { SuggestedFriends } from "@/components/SuggestedFriends";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
@@ -235,6 +237,7 @@ const Index = () => {
                     isLocationBased={nearestRegion?.id === currentRegionId}
                     distance={nearestRegion?.id === currentRegionId ? nearestRegion.distance : undefined}
                     homeRegion={homeRegion}
+                    userId={profile?.id ?? null}
                   />
                 )}
               </div>
@@ -247,8 +250,14 @@ const Index = () => {
                 {/* Playlists */}
                 <PlaylistManager regionId={currentRegionId} regionName={currentRegion?.name} />
 
+                {/* Track Upload */}
+                <TrackUploadDialog regionId={currentRegionId} />
+
                 {/* Emerging Artists Recommendations */}
                 <EmergingArtistsRecommendations regionId={currentRegionId} />
+
+                {/* Suggested Friends */}
+                <SuggestedFriends />
 
                 {/* Friends List */}
                 <FriendsList />
