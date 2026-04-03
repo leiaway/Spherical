@@ -11,16 +11,13 @@ import { LocationPrompt } from "@/components/LocationPrompt";
 import { DiscoverySection } from "@/components/DiscoverySection";
 import { RegionPicker } from "@/components/RegionPicker";
 import { UserMap } from "@/components/UserMap";
-import { FriendsList } from "@/components/FriendsList";
-import { AddFriend } from "@/components/AddFriend";
 import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsRecommendations";
 import { PlaylistManager } from "@/components/PlaylistManager";
 import { TrackUploadDialog } from "@/components/TrackUploadDialog";
 import { SuggestedFriends } from "@/components/SuggestedFriends";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
-import { useAuth } from "@/hooks/useAuth";
-import { Radio, LogIn, LogOut, User as UserIcon, Loader2 } from "lucide-react";
+import { Radio, LogIn, Loader2, Users } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -32,8 +29,6 @@ import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
   const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
-  const [loadingPreference, setLoadingPreference] = useState(true);
-  const navigate = useNavigate();
 
   const {
     latitude,
@@ -256,14 +251,29 @@ const Index = () => {
                 {/* Emerging Artists Recommendations */}
                 <EmergingArtistsRecommendations regionId={currentRegionId} />
 
-                {/* Suggested Friends */}
-                <SuggestedFriends />
-
-                {/* Friends List */}
-                <FriendsList />
-
-                {/* Add Friend */}
-                <AddFriend />
+                {/* Social Hub Link */}
+                <div className="rounded-xl border border-border bg-card overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-foreground">Social Hub</h3>
+                        <p className="text-sm text-muted-foreground">Connect globally</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Find friends, share your musical frequency, and see the network you build.
+                    </p>
+                    <Link to="/social" className="block w-full">
+                      <Button className="w-full gap-2" variant="outline">
+                        <Radio className="w-4 h-4" />
+                        Enter Frequency Network
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
 
