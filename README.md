@@ -88,6 +88,13 @@ This repo previously had **no automated tests**. The following testing + critica
   - Playlists: `src/components/CreatePlaylistDialog.test.tsx`, `src/components/EditPlaylistDialog.test.tsx`, `src/components/PlaylistManager.test.tsx`, `src/components/SharePlaylistDialog.test.tsx`
   - Friends: `src/components/AddFriend.test.tsx`, `src/components/FriendsList.test.tsx`
 
+- **Hook & Utility Tests (Tech Debt 1.3)**
+  - Data Fetching: `src/hooks/usePlaylists.test.tsx`, `src/hooks/useFriends.test.tsx`, `src/hooks/useRegions.test.tsx`
+  - Core Logic & Utils: `src/hooks/useGeolocation.test.tsx`, `src/lib/utils.test.ts`
+
+- **Interactive Component Tests (Tech Debt 1.4)**
+  - Data Display & Interaction: `src/components/TrackCard.test.tsx`, `src/components/RegionPicker.test.tsx`, `src/components/LocationPrompt.test.tsx`
+
 - **Small product/accessibility tweaks to enable stable tests**
   - Added `aria-label`s for icon-only actions (e.g. playlist “More actions”, friend accept/reject buttons)
   - Added playlist edit UI via `src/components/EditPlaylistDialog.tsx` and wired it into `PlaylistManager`

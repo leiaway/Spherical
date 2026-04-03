@@ -8,6 +8,7 @@ import { useAudio } from "@/contexts/AudioContext";
 interface TrackCardProps {
   track: Track;
   index?: number;
+  contextTag?: "Local" | "Home";
 }
 
 /** Formats play count for display (e.g. 1.2M, 500K). */
@@ -75,6 +76,16 @@ export const TrackCard = ({ track, index }: TrackCardProps) => {
             {track.genre && (
               <Badge variant="outline" className="text-xs">
                 {track.genre.name}
+              </Badge>
+            )}
+            {contextTag === "Home" && (
+              <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-500 border-blue-500/20">
+                From Home
+              </Badge>
+            )}
+            {contextTag === "Local" && (
+              <Badge variant="secondary" className="text-xs bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
+                Local Hit
               </Badge>
             )}
           </div>
