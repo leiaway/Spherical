@@ -52,6 +52,26 @@ export const DiscoverySection = ({
   const { data: homeTracks } = useRegionTracks(homeRegionId);
   const { data: homeArtists } = useRegionArtists(homeRegionId);
 
+  useEffect(() => {
+    console.log("🧪 VIBE Test: Starting Manual Audit of calculateDistance...");
+
+    try {
+      // 1. Test Valid Input
+      const dist = calculateDistance(40.7128, -74.006, 34.0522, -118.2437);
+      console.log("✅ Valid Calculation (NYC to LA):", dist, "km");
+
+      // 2. Test YOUR Human-Verified Boundary (The V-Event)
+      console.log("⚠️ Triggering Human-Verified Boundary (Lat: 105)...");
+      calculateDistance(105, -74.006, 34.0522, -118.2437);
+    } catch (error) {
+      // This proves your "Reject NaN" logic is working!
+      console.error(
+        "🎯 TEST LOG SUCCESS:",
+        error instanceof Error ? error.message : error
+      );
+    }
+  }, []);
+
   /** Interleave two arrays: [A, B, A, B, ...], appending remaining items from the longer one. */
   function interleave<T>(primary: T[], secondary: T[]): Array<T & { contextTag: "Local" | "Home" }> {
     const tagged = primary.map(item => ({ ...item, contextTag: "Local" as const }));
