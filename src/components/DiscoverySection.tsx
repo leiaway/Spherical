@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrackCard } from "./TrackCard";
 import { ArtistCard } from "./ArtistCard";
-import { useRegionTracks, useRegionArtists, type Region } from "@/hooks/useRegions";
-import { Music, Users, MapPin, Sparkles, RefreshCw } from "lucide-react";
+import { useRegionArtists, type Region } from "@/hooks/useRegions";
+import { usePersonalizedRegionTracks } from "@/hooks/usePersonalizedRegionTracks";
+import { supabase } from "@/integrations/supabase/client";
+import { Music, Users, MapPin, Sparkles, RefreshCw, CalendarDays } from "lucide-react";
+import { MoodPlaylistPanel } from "./MoodPlaylistPanel";
 
 /** Requirement: F1 (geo-tracking local mix), F5 (cultural recommendations by region), F8 (emerging artists tab). See docs/REQUIREMENTS_REFERENCE.md */
 
@@ -15,21 +19,33 @@ interface DiscoverySectionProps {
   isLocationBased?: boolean;
   distance?: number;
   homeRegion?: Region | null;
+  userId?: string | null;
 }
 
 /**
  * Main discovery panel for a region: header (name, country, "Near You" / distance), description,
  * and tabs for Popular Tracks, Local Artists, and Emerging artists. Uses useRegionTracks and useRegionArtists.
  */
-export const DiscoverySection = ({ 
-  region, 
+export const DiscoverySection = ({
+  region,
   isLocationBased = false,
   distance,
   homeRegion,
+  userId,
 }: DiscoverySectionProps) => {
   const [activeTab, setActiveTab] = useState("tracks");
-  const { data: tracks, isLoading: tracksLoading } = useRegionTracks(region.id);
+  const queryClient = useQueryClient();
+  const { data: tracks, isLoading: tracksLoading } = usePersonalizedRegionTracks(region.id, userId ?? null);
   const { data: artists, isLoading: artistsLoading } = useRegionArtists(region.id);
+
+  const handleTrackPlay = useCallback(async (trackId: string) => {
+    if (!userId) return;
+    await supabase.rpc('increment_user_track_play', {
+      p_user_id: userId,
+      p_track_id: trackId,
+    });
+    queryClient.invalidateQueries({ queryKey: ['personalized-region-tracks'] });
+  }, [userId, queryClient]);
 
   // F1.2 — Fetch home-region content if user has a different home country
   const homeRegionId = homeRegion && homeRegion.id !== region.id ? homeRegion.id : null;
@@ -110,6 +126,10 @@ export const DiscoverySection = ({
               Emerging
             </TabsTrigger>
           )}
+          <TabsTrigger value="mood" className="gap-2 data-[state=active]:bg-card">
+            <CalendarDays className="w-4 h-4" />
+            Mood & Festivals
+          </TabsTrigger>
         </TabsList>
 
         {/* Tracks Tab */}
@@ -128,7 +148,7 @@ export const DiscoverySection = ({
                 </p>
               )}
               {mixedTracks.map((track, index) => (
-                <TrackCard key={`${track.id}-${index}`} track={track} index={index} contextTag={track.contextTag} />
+                <TrackCard key={`${track.id}-${index}`} track={track} index={index} contextTag={track.contextTag} onPlay={handleTrackPlay} />
               ))}
             </div>
           ) : (
@@ -186,6 +206,11 @@ export const DiscoverySection = ({
               <p>No emerging artists found for this region yet</p>
             </div>
           )}
+        </TabsContent>
+
+        {/* Mood & Festivals Tab */}
+        <TabsContent value="mood" className="space-y-4">
+          <MoodPlaylistPanel region={region} onPlay={handleTrackPlay} />
         </TabsContent>
       </Tabs>
     </section>
