@@ -66,7 +66,7 @@ export const useFriends = () => {
     if (!currentUserId) return;
 
     setLoading(true);
-    
+
     // Fetch friendships where user is either sender or receiver
     const { data, error } = await supabase
       .from('friendships')
@@ -80,7 +80,7 @@ export const useFriends = () => {
     }
 
     // Other user in each row: if I'm user_id then other is friend_id, else user_id
-    const otherUserIds = data?.map(f => 
+    const otherUserIds = data?.map(f =>
       f.user_id === currentUserId ? f.friend_id : f.user_id
     ) || [];
 
