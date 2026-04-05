@@ -18,7 +18,8 @@ import { SuggestedFriends } from "@/components/SuggestedFriends";
 import { NotificationBell } from "@/components/NotificationBell";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
-import { Radio, LogIn, Loader2, Users } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
