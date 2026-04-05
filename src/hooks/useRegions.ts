@@ -7,6 +7,7 @@ import {
   fetchGenres,
   fetchFestivals,
   fetchRegionByCountry,
+  fetchMulticulturalTracks,
 } from '@/services/geoRecommendationService';
 
 /** Requirement: F5 (international/cultural music recommendations). See docs/REQUIREMENTS_REFERENCE.md */
@@ -168,5 +169,20 @@ export const useRegionByCountry = (country: string | null) => {
     queryFn: () => fetchRegionByCountry(country as string),
     enabled: !!country,
     staleTime: 1000 * 60 * 60 * 24, // 24 hours — region-country mapping rarely changes
+  });
+};
+
+/**
+ * Fetches tracks from regions other than the given one (F2.3 — multi-cultural recommendations).
+ * Powers the "World Music" tab in DiscoverySection.
+ *
+ * @param regionId - The current region to exclude, or null to disable
+ */
+export const useMulticulturalTracks = (regionId: string | null) => {
+  return useQuery<Track[]>({
+    queryKey: ['multicultural-tracks', regionId],
+    queryFn: () => fetchMulticulturalTracks(regionId as string),
+    enabled: !!regionId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };

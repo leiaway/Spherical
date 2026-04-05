@@ -14,11 +14,11 @@ import { UserMap } from "@/components/UserMap";
 import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsRecommendations";
 import { PlaylistManager } from "@/components/PlaylistManager";
 import { TrackUploadDialog } from "@/components/TrackUploadDialog";
-import { SuggestedFriends } from "@/components/SuggestedFriends";
 import { NotificationBell } from "@/components/NotificationBell";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { useRegions } from "@/hooks/useRegions";
+import { useRegions, useRegionByCountry } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon } from "lucide-react";
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,6 +31,8 @@ import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
   const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
+  const [loadingPreference, setLoadingPreference] = useState(true);
+  const navigate = useNavigate();
 
   const {
     latitude,

@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Pause, Sparkles, Music } from "lucide-react";
+import { Play, Pause, Sparkles, Music, Info } from "lucide-react";
 import type { Track } from "@/hooks/useRegions";
 import { AddToPlaylistButton } from "./AddToPlaylistButton";
 import { useAudio } from "@/contexts/AudioContext";
@@ -25,6 +26,10 @@ const formatPlayCount = (count: number | null): string => {
  * Card for a single track: title, artist, genre, play count, cultural context on hover, and Add to Playlist.
  */
 export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) => {
+  const { currentTrack, isPlaying, play } = useAudio();
+  const isCurrentTrack = currentTrack?.id === track.id;
+  const [showContext, setShowContext] = useState(false);
+
   return (
     <Card
       className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden"
@@ -34,7 +39,7 @@ export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) 
         <div className="flex items-start gap-4">
           {/* Track Number / Play Icon */}
           <button
-            onClick={() => play(track)}
+            onClick={(e) => { e.stopPropagation(); play(track); }}
             className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors hover:bg-primary/20"
             aria-label="Play track"
           >
@@ -99,13 +104,23 @@ export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) 
               </span>
               <p className="text-xs text-muted-foreground">plays</p>
             </div>
+            {track.cultural_context && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowContext(v => !v); }}
+                className="w-7 h-7 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                aria-label="Show cultural context"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            )}
             <AddToPlaylistButton trackId={track.id} />
           </div>
         </div>
 
-        {/* Cultural Context (on hover) */}
+        {/* Cultural Context — shown on hover OR when toggled via Info button */}
         {track.cultural_context && (
-          <div className="mt-3 pt-3 border-t border-border/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className={`mt-3 pt-3 border-t border-border/50 transition-opacity duration-300 ${showContext ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+            <p className="text-xs font-medium text-muted-foreground mb-1">Cultural Context</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               {track.cultural_context}
             </p>
