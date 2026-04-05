@@ -55,6 +55,83 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          type: string
+          title: string
+          body: string | null
+          read: boolean
+          payload: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          type: string
+          title: string
+          body?: string | null
+          read?: boolean
+          payload?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          type?: string
+          title?: string
+          body?: string | null
+          read?: boolean
+          payload?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scout_watches: {
+        Row: {
+          id: string
+          scout_id: string
+          artist_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          scout_id: string
+          artist_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          scout_id?: string
+          artist_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scout_watches_scout_id_fkey"
+            columns: ["scout_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scout_watches_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friendships: {
         Row: {
           created_at: string
@@ -492,6 +569,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_artist_listener_regions: {
+        Args: {
+          p_artist_id: string
+        }
+        Returns: {
+          region_id: string
+          region_name: string
+          play_count: number
+        }[]
+      }
       get_personalized_region_tracks: {
         Args: {
           p_user_id: string

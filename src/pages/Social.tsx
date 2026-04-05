@@ -1,4 +1,6 @@
 import { SocialDashboard } from "@/components/SocialDashboard";
+import { TrendingArtistsDashboard } from "@/components/TrendingArtistsDashboard";
+import { ScoutWatchlistPanel } from "@/components/ScoutWatchlistPanel";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -19,8 +21,16 @@ const Social = () => {
             </header>
 
             {/* Main Content Dashboard */}
-            <main className="container mx-auto px-4 py-8 md:py-12">
+            <main className="container mx-auto px-4 py-8 md:py-12 space-y-12">
                 <SocialDashboard />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <div className="lg:col-span-8">
+                        <TrendingArtistsDashboard />
+                    </div>
+                    <div className="lg:col-span-4">
+                        <ScoutWatchlistPanel />
+                    </div>
+                </div>
             </main>
         </div>
     );
