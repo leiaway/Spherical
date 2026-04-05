@@ -5,6 +5,15 @@ import { useToast } from '@/hooks/use-toast';
 
 /** Requirement: F7 (add friend feature). See docs/REQUIREMENTS_REFERENCE.md */
 
+/** Postgres error code for a unique-constraint violation (duplicate friendship row). */
+const POSTGRES_UNIQUE_VIOLATION = '23505';
+
+/** Minimal shape of a Supabase PostgREST error used by friendship mutations. */
+interface SupabaseError {
+  code?: string;
+  message?: string;
+}
+
 /** Friendship row plus optional profile for the other user (friend_profile or user_profile depending on direction). */
 interface Friend {
   id: string;
@@ -40,7 +49,7 @@ const fetchFriendsForUser = async (currentUserId: string): Promise<FriendsQueryR
     .or(`user_id.eq.${currentUserId},friend_id.eq.${currentUserId}`);
 
   if (error) {
-    console.error('Error fetching friends:', error);
+    console.error('[useFriends] Error fetching friendships:', error);
     throw error;
   }
 
@@ -60,7 +69,7 @@ const fetchFriendsForUser = async (currentUserId: string): Promise<FriendsQueryR
     .in('id', otherUserIds);
 
   if (profilesError) {
-    console.error('Error fetching friend profiles:', profilesError);
+    console.error('[useFriends] Error fetching friend profiles:', profilesError);
     throw profilesError;
   }
 
@@ -107,7 +116,7 @@ export const useFriends = () => {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        console.error('Error fetching current user:', error);
+        console.error('[useFriends] Error fetching current user:', error);
         setCurrentUserId(null);
         return;
       }
@@ -160,73 +169,67 @@ export const useFriends = () => {
     };
   }, [currentUserId, refetch]);
 
-  const sendFriendRequest = async (friendId: string) => {
+  /**
+   * Runs a Supabase mutation, shows a toast on success or failure, and returns whether it succeeded.
+   *
+   * @param operation - async function that performs the DB write and returns `{ error }`
+   * @param successMessage - toast title shown on success
+   * @param getErrorMessage - maps the Supabase error to a user-facing string; each caller supplies
+   *   its own resolver so that the same Postgres error code can mean different things per operation
+   *   (e.g. 23505 is "already sent" only for sendFriendRequest, not for update/delete paths)
+   */
+  const runMutation = async (
+    operation: () => Promise<{ error: SupabaseError | null }>,
+    successMessage: string,
+    getErrorMessage: (error: SupabaseError) => string,
+  ): Promise<boolean> => {
+    const { error } = await operation();
+
+    if (error) {
+      toast({ title: getErrorMessage(error), variant: 'destructive' });
+      return false;
+    }
+
+    toast({ title: successMessage });
+    return true;
+  };
+
+  const sendFriendRequest = async (friendId: string): Promise<boolean> => {
     if (!currentUserId) {
       toast({ title: 'Please sign in to add friends', variant: 'destructive' });
       return false;
     }
 
-    const { error } = await supabase
-      .from('friendships')
-      .insert({ user_id: currentUserId, friend_id: friendId });
-
-    if (error) {
-      if (error.code === '23505') {
-        toast({ title: 'Friend request already sent', variant: 'destructive' });
-      } else {
-        toast({ title: 'Failed to send request', variant: 'destructive' });
-      }
-      return false;
-    }
-
-    toast({ title: 'Friend request sent!' });
-    return true;
+    return runMutation(
+      () => supabase.from('friendships').insert({ user_id: currentUserId, friend_id: friendId }),
+      'Friend request sent!',
+      (error) =>
+        error.code === POSTGRES_UNIQUE_VIOLATION
+          ? 'Friend request already sent'
+          : 'Failed to send request',
+    );
   };
 
-  const acceptFriendRequest = async (friendshipId: string) => {
-    const { error } = await supabase
-      .from('friendships')
-      .update({ status: 'accepted' })
-      .eq('id', friendshipId);
+  const acceptFriendRequest = (friendshipId: string): Promise<boolean> =>
+    runMutation(
+      () => supabase.from('friendships').update({ status: 'accepted' }).eq('id', friendshipId),
+      'Friend request accepted!',
+      () => 'Failed to accept request',
+    );
 
-    if (error) {
-      toast({ title: 'Failed to accept request', variant: 'destructive' });
-      return false;
-    }
+  const rejectFriendRequest = (friendshipId: string): Promise<boolean> =>
+    runMutation(
+      () => supabase.from('friendships').delete().eq('id', friendshipId),
+      'Request declined',
+      () => 'Failed to reject request',
+    );
 
-    toast({ title: 'Friend request accepted!' });
-    return true;
-  };
-
-  const rejectFriendRequest = async (friendshipId: string) => {
-    const { error } = await supabase
-      .from('friendships')
-      .delete()
-      .eq('id', friendshipId);
-
-    if (error) {
-      toast({ title: 'Failed to reject request', variant: 'destructive' });
-      return false;
-    }
-
-    toast({ title: 'Request declined' });
-    return true;
-  };
-
-  const removeFriend = async (friendshipId: string) => {
-    const { error } = await supabase
-      .from('friendships')
-      .delete()
-      .eq('id', friendshipId);
-
-    if (error) {
-      toast({ title: 'Failed to remove friend', variant: 'destructive' });
-      return false;
-    }
-
-    toast({ title: 'Friend removed' });
-    return true;
-  };
+  const removeFriend = (friendshipId: string): Promise<boolean> =>
+    runMutation(
+      () => supabase.from('friendships').delete().eq('id', friendshipId),
+      'Friend removed',
+      () => 'Failed to remove friend',
+    );
 
   return {
     friends: data?.friends ?? [],
