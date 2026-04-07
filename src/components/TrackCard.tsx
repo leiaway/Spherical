@@ -25,6 +25,8 @@ const formatPlayCount = (count: number | null): string => {
  * Card for a single track: title, artist, genre, play count, cultural context on hover, and Add to Playlist.
  */
 export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) => {
+  const { play, isPlaying, currentTrack } = useAudio();
+  const isCurrentTrack = currentTrack?.id === track.id;
   return (
     <Card
       className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden"
