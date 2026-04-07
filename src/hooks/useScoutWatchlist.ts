@@ -22,7 +22,7 @@ export const useScoutWatchlist = () => {
   const query = useQuery<WatchedArtist[]>({
     queryKey: ['scout-watchlist', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('scout_watches')
         .select('id, artist_id, artists(name, image_url, is_emerging, listener_count)')
         .eq('scout_id', user!.id);
@@ -43,7 +43,7 @@ export const useScoutWatchlist = () => {
 
   const watchArtist = async (artistId: string) => {
     if (!user) { toast({ title: 'Sign in to watch artists', variant: 'destructive' }); return; }
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('scout_watches')
       .insert({ scout_id: user.id, artist_id: artistId });
     if (error && error.code !== '23505') {
@@ -55,7 +55,7 @@ export const useScoutWatchlist = () => {
   };
 
   const unwatchArtist = async (watchId: string) => {
-    const { error } = await supabase.from('scout_watches').delete().eq('id', watchId);
+    const { error } = await (supabase as any).from('scout_watches').delete().eq('id', watchId);
     if (error) { toast({ title: 'Failed to remove from watchlist', variant: 'destructive' }); return; }
     toast({ title: 'Removed from watchlist' });
     void queryClient.invalidateQueries({ queryKey: ['scout-watchlist', user?.id] });

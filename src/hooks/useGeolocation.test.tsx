@@ -24,13 +24,13 @@ describe('useGeolocation', () => {
     vi.clearAllMocks();
     
     // Mock navigator.geolocation
-    Object.defineProperty(global.navigator, 'geolocation', {
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
       value: mockGeolocation,
       configurable: true,
     });
 
     // Mock navigator.permissions
-    Object.defineProperty(global.navigator, 'permissions', {
+    Object.defineProperty(globalThis.navigator, 'permissions', {
       value: mockPermissions,
       configurable: true,
     });
@@ -49,7 +49,7 @@ describe('useGeolocation', () => {
   });
 
   it('handles geolocation not supported', async () => {
-    Object.defineProperty(global.navigator, 'geolocation', {
+    Object.defineProperty(globalThis.navigator, 'geolocation', {
       value: undefined,
       configurable: true,
     });

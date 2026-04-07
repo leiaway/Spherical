@@ -201,7 +201,7 @@ export const useFriends = () => {
     }
 
     return runMutation(
-      () => supabase.from('friendships').insert({ user_id: currentUserId, friend_id: friendId }),
+      async () => { const res = await supabase.from('friendships').insert({ user_id: currentUserId, friend_id: friendId }); return { error: res.error }; },
       'Friend request sent!',
       (error) =>
         error.code === POSTGRES_UNIQUE_VIOLATION
@@ -212,21 +212,21 @@ export const useFriends = () => {
 
   const acceptFriendRequest = (friendshipId: string): Promise<boolean> =>
     runMutation(
-      () => supabase.from('friendships').update({ status: 'accepted' }).eq('id', friendshipId),
+      async () => { const res = await supabase.from('friendships').update({ status: 'accepted' }).eq('id', friendshipId); return { error: res.error }; },
       'Friend request accepted!',
       () => 'Failed to accept request',
     );
 
   const rejectFriendRequest = (friendshipId: string): Promise<boolean> =>
     runMutation(
-      () => supabase.from('friendships').delete().eq('id', friendshipId),
+      async () => { const res = await supabase.from('friendships').delete().eq('id', friendshipId); return { error: res.error }; },
       'Request declined',
       () => 'Failed to reject request',
     );
 
   const removeFriend = (friendshipId: string): Promise<boolean> =>
     runMutation(
-      () => supabase.from('friendships').delete().eq('id', friendshipId),
+      async () => { const res = await supabase.from('friendships').delete().eq('id', friendshipId); return { error: res.error }; },
       'Friend removed',
       () => 'Failed to remove friend',
     );

@@ -214,6 +214,9 @@ export const PlaylistManager = ({ regionId, regionName }: PlaylistManagerProps) 
                       title: pt.track.title,
                       play_count: pt.track.play_count,
                       cultural_context: pt.track.cultural_context,
+                      audio_url: null,
+                      cover_image_url: null,
+                      duration_seconds: null,
                       artist: pt.track.artist,
                       genre: pt.track.genre,
                     }}
