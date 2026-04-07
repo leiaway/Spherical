@@ -19,7 +19,7 @@ export const useArtistListenerRegions = (artistId: string | null) => {
   return useQuery<ArtistListenerRegion[]>({
     queryKey: ['artist-listener-regions', artistId],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_artist_listener_regions', {
+      const { data, error } = await (supabase as any).rpc('get_artist_listener_regions', {
         p_artist_id: artistId as string,
       });
       if (error) throw error;
