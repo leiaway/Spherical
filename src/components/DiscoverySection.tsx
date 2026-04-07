@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,9 @@ import { TrackCard } from "./TrackCard";
 import { ArtistCard } from "./ArtistCard";
 import { useRegionArtists, type Region } from "@/hooks/useRegions";
 import { usePersonalizedRegionTracks } from "@/hooks/usePersonalizedRegionTracks";
+import { useRegionTracks } from "@/hooks/useRegions";
 import { supabase } from "@/integrations/supabase/client";
+import { calculateDistance } from "@/lib/calculateDistance";
 import { Music, Users, MapPin, Sparkles, RefreshCw, CalendarDays } from "lucide-react";
 import { MoodPlaylistPanel } from "./MoodPlaylistPanel";
 

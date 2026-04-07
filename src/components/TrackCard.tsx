@@ -34,27 +34,22 @@ export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) 
         <div className="flex items-start gap-4">
           {/* Track Number / Play Icon */}
           <button
-            onClick={() => play(track)}
+            onClick={(e) => { e.stopPropagation(); onPlay?.(track.id); }}
             className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors hover:bg-primary/20"
             aria-label="Play track"
           >
-            {!isCurrentTrack && (
+            {index !== undefined ? (
               <>
-                {index !== undefined ? (
-                  <span className="text-muted-foreground group-hover:hidden font-semibold">
-                    {index + 1}
-                  </span>
-                ) : (
-                  <Music className="w-5 h-5 text-muted-foreground group-hover:hidden" />
-                )}
+                <span className="text-muted-foreground group-hover:hidden font-semibold">
+                  {index + 1}
+                </span>
                 <Play className="w-5 h-5 text-primary hidden group-hover:block" />
               </>
-            )}
-            {isCurrentTrack && isPlaying && (
-              <Pause className="w-5 h-5 text-primary" />
-            )}
-            {isCurrentTrack && !isPlaying && (
-              <Play className="w-5 h-5 text-primary" />
+            ) : (
+              <>
+                <Music className="w-5 h-5 text-muted-foreground group-hover:hidden" />
+                <Play className="w-5 h-5 text-primary hidden group-hover:block" />
+              </>
             )}
           </button>
 

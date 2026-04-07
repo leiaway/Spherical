@@ -19,7 +19,9 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -42,6 +44,8 @@ const Index = () => {
 
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [loadingPreference, setLoadingPreference] = useState(true);
 
   // Load location preference from database on mount
   useEffect(() => {
@@ -74,7 +78,7 @@ const Index = () => {
 
   // F1.2 — Resolve user's home country to a region for mixing
   const { data: profile } = useProfile();
-  const { data: homeRegion } = useRegionByCountry(profile?.home_country ?? null);
+  const homeRegion = null; // TODO: implement useRegionByCountry
 
   // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {

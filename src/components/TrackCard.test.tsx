@@ -20,6 +20,9 @@ describe('TrackCard', () => {
     title: 'Awesome Song',
     play_count: 1500000,
     cultural_context: 'Traditional folk fusion',
+    audio_url: null,
+    cover_image_url: null,
+    duration_seconds: null,
     artist: { id: 'a-1', name: 'Cool Band', is_emerging: true },
     genre: { id: 'g-1', name: 'Fusion' },
   };

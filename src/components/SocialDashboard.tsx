@@ -15,7 +15,7 @@ import { useState } from "react";
 
 export const SocialDashboard = () => {
     const { data: profile } = useProfile();
-    const regionId = profile?.current_region_id ?? null;
+    const regionId = (profile as any)?.current_region_id ?? null;
 
     const { data: nearbyCreators, isLoading: nearbyLoading } = useNearbyCreators(regionId);
     const { data: suggestions, isLoading: suggestionsLoading } = useSuggestedFriends();
