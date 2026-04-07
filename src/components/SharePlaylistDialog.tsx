@@ -61,7 +61,7 @@ export const SharePlaylistDialog = ({ playlist }: SharePlaylistDialogProps) => {
           Share
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Share "{playlist.name}"</DialogTitle>
         </DialogHeader>

@@ -96,7 +96,7 @@ export const TrackUploadDialog = ({ regionId }: TrackUploadDialogProps) => {
           Upload a Track
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Upload a Track</DialogTitle>
         </DialogHeader>

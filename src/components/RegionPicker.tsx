@@ -48,7 +48,7 @@ export const RegionPicker = ({
             <ChevronDown className="w-4 h-4 flex-shrink-0" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-[280px]">
+        <DropdownMenuContent align="start" className="w-[280px] max-h-72 overflow-y-auto">
           {regions.map((region) => (
             <DropdownMenuItem
               key={region.id}

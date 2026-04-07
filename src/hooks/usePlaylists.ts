@@ -203,7 +203,8 @@ export const usePlaylists = () => {
       queryClient.invalidateQueries({ queryKey: ['playlists'] });
       toast({ title: 'Playlist created!' });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('[createPlaylist] error:', error);
       toast({ title: 'Failed to create playlist', variant: 'destructive' });
     },
   });
