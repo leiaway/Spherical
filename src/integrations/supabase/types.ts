@@ -55,83 +55,6 @@ export type Database = {
           },
         ]
       }
-      notifications: {
-        Row: {
-          id: string
-          user_id: string
-          type: string
-          title: string
-          body: string | null
-          read: boolean
-          payload: Json | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          type: string
-          title: string
-          body?: string | null
-          read?: boolean
-          payload?: Json | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          type?: string
-          title?: string
-          body?: string | null
-          read?: boolean
-          payload?: Json | null
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      scout_watches: {
-        Row: {
-          id: string
-          scout_id: string
-          artist_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          scout_id: string
-          artist_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          scout_id?: string
-          artist_id?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "scout_watches_scout_id_fkey"
-            columns: ["scout_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "scout_watches_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "artists"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       friendships: {
         Row: {
           created_at: string
@@ -271,12 +194,9 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
-          festival_id: string | null
           id: string
           is_public: boolean | null
-          mood: string | null
           name: string
-          playlist_type: string | null
           region_id: string | null
           updated_at: string
           user_id: string
@@ -284,12 +204,9 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
-          festival_id?: string | null
           id?: string
           is_public?: boolean | null
-          mood?: string | null
           name: string
-          playlist_type?: string | null
           region_id?: string | null
           updated_at?: string
           user_id: string
@@ -297,12 +214,9 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
-          festival_id?: string | null
           id?: string
           is_public?: boolean | null
-          mood?: string | null
           name?: string
-          playlist_type?: string | null
           region_id?: string | null
           updated_at?: string
           user_id?: string
@@ -371,102 +285,6 @@ export type Database = {
           },
         ]
       }
-      festivals: {
-        Row: {
-          created_at: string
-          description: string | null
-          genre_id: string | null
-          id: string
-          mood: string | null
-          name: string
-          region_id: string
-          typical_month: number | null
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          genre_id?: string | null
-          id?: string
-          mood?: string | null
-          name: string
-          region_id: string
-          typical_month?: number | null
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          genre_id?: string | null
-          id?: string
-          mood?: string | null
-          name?: string
-          region_id?: string
-          typical_month?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "festivals_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "festivals_genre_id_fkey"
-            columns: ["genre_id"]
-            isOneToOne: false
-            referencedRelation: "genres"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_track_plays: {
-        Row: {
-          created_at: string
-          first_played_timestamp: string | null
-          id: string
-          last_played_timestamp: string | null
-          play_count: number
-          track_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          first_played_timestamp?: string | null
-          id?: string
-          last_played_timestamp?: string | null
-          play_count?: number
-          track_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          first_played_timestamp?: string | null
-          id?: string
-          last_played_timestamp?: string | null
-          play_count?: number
-          track_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_track_plays_track_id_fkey"
-            columns: ["track_id"]
-            isOneToOne: false
-            referencedRelation: "tracks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_track_plays_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       regions: {
         Row: {
           country: string
@@ -507,7 +325,6 @@ export type Database = {
           duration_seconds: number | null
           genre_id: string | null
           id: string
-          mood: string | null
           play_count: number | null
           region_id: string | null
           title: string
@@ -521,7 +338,6 @@ export type Database = {
           duration_seconds?: number | null
           genre_id?: string | null
           id?: string
-          mood?: string | null
           play_count?: number | null
           region_id?: string | null
           title: string
@@ -535,7 +351,6 @@ export type Database = {
           duration_seconds?: number | null
           genre_id?: string | null
           id?: string
-          mood?: string | null
           play_count?: number | null
           region_id?: string | null
           title?: string
@@ -569,67 +384,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_artist_listener_regions: {
-        Args: {
-          p_artist_id: string
-        }
-        Returns: {
-          region_id: string
-          region_name: string
-          play_count: number
-        }[]
-      }
-      get_personalized_region_tracks: {
-        Args: {
-          p_user_id: string
-          p_region_id: string
-        }
-        Returns: {
-          id: string
-          title: string
-          play_count: number | null
-          cultural_context: string | null
-          artist_id: string | null
-          artist_name: string | null
-          artist_is_emerging: boolean | null
-          genre_id: string | null
-          genre_name: string | null
-        }[]
-      }
-      increment_user_track_play: {
-        Args: {
-          p_user_id: string
-          p_track_id: string
-        }
-        Returns: undefined
-      }
-      get_suggested_friends: {
-        Args: {
-          p_user_id: string
-        }
-        Returns: {
-          profile_id: string
-          display_name: string | null
-          avatar_url: string | null
-          taste_score: number
-          match_reason: string
-        }[]
-      }
-      generate_mood_playlist: {
-        Args: {
-          p_region_id: string
-          p_mood: string
-          p_limit?: number
-        }
-        Returns: { track_id: string }[]
-      }
-      generate_festival_playlist: {
-        Args: {
-          p_festival_id: string
-          p_limit?: number
-        }
-        Returns: { track_id: string }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
