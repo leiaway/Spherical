@@ -42,7 +42,9 @@ class SupabaseClient:
         self.session = requests.Session()
         self.session.headers.update({
             'apikey': self.key,
-            'Content-Type': 'application/json'
+            'Authorization': f'Bearer {self.key}',
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation',
         })
 
     def from_(self, table: str):
@@ -271,7 +273,19 @@ class MusicDataPopulator:
             return []
 
     def get_artists_by_country_origin(self, country_name: str, limit: int = 5) -> List[str]:
-        """Fetch musicians from a specific country using Wikidata SPARQL."""
+        """Fetch musicians from a specific country using Wikidata SPARQL.
+        Falls back to a hardcoded list for countries where Wikidata times out
+        (e.g. United States — too many results) or returns too few (e.g. Denmark).
+        """
+        # Hardcoded fallbacks for countries that reliably fail Wikidata queries
+        fallbacks = {
+            "United States": ["Kendrick Lamar", "Taylor Swift", "Beyoncé", "Jay-Z", "Billie Eilish"],
+            "Denmark":       ["MØ", "Lukas Graham", "Aqua", "Nephew", "Christopher"],
+        }
+        if country_name in fallbacks:
+            print(f"    [FALLBACK] Using hardcoded artist list for {country_name}")
+            return fallbacks[country_name][:limit]
+
         try:
             # Map country names to Wikidata country codes
             country_map = {
@@ -492,8 +506,13 @@ class MusicDataPopulator:
             # Rate limiting for Last.fm API
             time.sleep(0.5)
 
-    def run(self):
-        """Main execution method."""
+    def run(self, only_countries: list = None):
+        """Main execution method.
+
+        Args:
+            only_countries: Optional list of country names to restrict processing to.
+                            e.g. ["Canada", "China"]. If None, processes all countries.
+        """
         print("🎵 FREQUENCY - Music Data Population Script\n")
         print("=" * 50)
 
@@ -504,33 +523,54 @@ class MusicDataPopulator:
         print("Fetching and populating music data...")
         print("=" * 50)
 
-        # Process each region
+        # Build deduplicated country list from REGIONS
         regions_by_country = {}
         for region in REGIONS:
-            country_code = region["code"]
-            country_name = region["name"]
-            region_name = region["continent"]
+            code = region["code"]
+            if code not in regions_by_country:
+                regions_by_country[code] = (region["name"], region["continent"])
 
-            if country_code not in regions_by_country:
-                regions_by_country[country_code] = (country_name, region_name)
+        # Filter to requested countries if provided
+        if only_countries:
+            requested = {c.strip().lower() for c in only_countries}
+            regions_by_country = {
+                code: (name, continent)
+                for code, (name, continent) in regions_by_country.items()
+                if name.lower() in requested
+            }
+            if not regions_by_country:
+                print("❌ No matching countries found. Check spelling against REGIONS list.")
+                return
+            print(f"Targeting {len(regions_by_country)} country/countries: {', '.join(n for n, _ in regions_by_country.values())}\n")
 
-        # Process countries (targeting ~2-3 artists per country for comprehensive coverage)
         artists_per_country = 2
-        for country_code, (country_name, region_name) in list(regions_by_country.items()):  # Process all countries
+        for country_code, (country_name, region_name) in regions_by_country.items():
             self.populate_country(country_code, country_name, region_name, artists_per_country)
-            time.sleep(0.5)  # Rate limiting
+            time.sleep(0.5)
 
         print("\n" + "=" * 50)
         print(f"✅ Population complete!")
-        print(f"   • Genres created: {len(self.genres_map)}")
-        print(f"   • Regions created: {len(self.regions_map)}")
+        print(f"   • Genres set up: {len(self.genres_map)}")
+        print(f"   • Regions set up: {len(self.regions_map)}")
         print(f"   • Artists processed: {len(self.artists_seen)}")
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Populate FREQUENCY music data")
+    parser.add_argument(
+        "--countries",
+        type=str,
+        default=None,
+        help='Comma-separated list of country names to populate, e.g. "Canada,China,Denmark"'
+    )
+    args = parser.parse_args()
+
+    only = [c.strip() for c in args.countries.split(",")] if args.countries else None
+
     try:
         populator = MusicDataPopulator()
-        populator.run()
+        populator.run(only_countries=only)
     except Exception as e:
         print(f"❌ Fatal error: {e}")
         sys.exit(1)
