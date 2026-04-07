@@ -26,7 +26,7 @@ export const useNotifications = () => {
   const query = useQuery<Notification[]>({
     queryKey: ['notifications', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('notifications')
         .select('id, type, title, body, read, payload, created_at')
         .eq('user_id', user!.id)
@@ -63,7 +63,7 @@ export const useNotifications = () => {
   }, [user, queryClient]);
 
   const markAsRead = async (notificationId: string) => {
-    await supabase
+    await (supabase as any)
       .from('notifications')
       .update({ read: true })
       .eq('id', notificationId);
@@ -72,7 +72,7 @@ export const useNotifications = () => {
 
   const markAllAsRead = async () => {
     if (!user) return;
-    await supabase
+    await (supabase as any)
       .from('notifications')
       .update({ read: true })
       .eq('user_id', user.id)

@@ -42,7 +42,7 @@ export const DiscoverySection = ({
 
   const handleTrackPlay = useCallback(async (trackId: string) => {
     if (!userId) return;
-    await supabase.rpc('increment_user_track_play', {
+    await (supabase as any).rpc('increment_user_track_play', {
       p_user_id: userId,
       p_track_id: trackId,
     });
