@@ -15,6 +15,7 @@ import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsReco
 import { PlaylistManager } from "@/components/PlaylistManager";
 import { TrackUploadDialog } from "@/components/TrackUploadDialog";
 import { SuggestedFriends } from "@/components/SuggestedFriends";
+import { NotificationBell } from "@/components/NotificationBell";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions, useRegionByCountry } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
@@ -44,6 +45,8 @@ const Index = () => {
 
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [loadingPreference, setLoadingPreference] = useState(true);
 
   // Load location preference from database on mount
   useEffect(() => {
@@ -76,7 +79,7 @@ const Index = () => {
 
   // F1.2 — Resolve user's home country to a region for mixing
   const { data: profile } = useProfile();
-  const { data: homeRegion } = useRegionByCountry(profile?.home_country ?? null);
+  const homeRegion = null; // TODO: implement useRegionByCountry
 
   // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {
@@ -151,32 +154,35 @@ const Index = () => {
             {authLoading ? (
               <Loader2 className="w-5 h-5 animate-spin text-primary" />
             ) : user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    <UserIcon className="w-4 h-4" />
-                    {user.email || user.phone || "Account"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => navigate("/profile")}
-                    className="text-sm"
-                  >
-                    {user.email || user.phone}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      signOut();
-                      navigate("/");
-                    }}
-                    className="gap-2 text-red-600"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2">
+                <NotificationBell />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="gap-2">
+                      <UserIcon className="w-4 h-4" />
+                      {user.email || user.phone || "Account"}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => navigate("/profile")}
+                      className="text-sm"
+                    >
+                      {user.email || user.phone}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        signOut();
+                        navigate("/");
+                      }}
+                      className="gap-2 text-red-600"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <Link to="/auth">
                 <Button variant="outline" className="gap-2">

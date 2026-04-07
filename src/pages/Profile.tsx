@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Copy, Key, Mail, User, MapPin, Save } from "lucide-react";
+import { ArrowLeft, Copy, Key, Mail, User, MapPin, Save, BarChart2, Search } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
+import { useArtistListenerRegions } from "@/hooks/useArtistListenerRegions";
 
 type Profile = Tables<"profiles">;
 
@@ -23,6 +25,8 @@ const ProfilePage = () => {
   const [saving, setSaving] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string>("");
   const [editedProfile, setEditedProfile] = useState<Partial<Profile>>({});
+  const [artistNameInput, setArtistNameInput] = useState("");
+  const [lookupArtistId, setLookupArtistId] = useState<string | null>(null);
 
   // Load user profile and Mapbox token on mount
   useEffect(() => {
@@ -95,6 +99,23 @@ const ProfilePage = () => {
         title: "Success",
         description: "Mapbox token updated successfully",
       });
+    }
+  };
+
+  const { data: listenerRegions, isLoading: insightsLoading } = useArtistListenerRegions(lookupArtistId);
+
+  const handleArtistLookup = async () => {
+    if (!artistNameInput.trim()) return;
+    const { data } = await supabase
+      .from('artists')
+      .select('id')
+      .ilike('name', artistNameInput.trim())
+      .limit(1)
+      .single();
+    if (data) {
+      setLookupArtistId(data.id);
+    } else {
+      toast({ title: 'Artist not found', description: 'No artist matched that name.', variant: 'destructive' });
     }
   };
 
@@ -264,6 +285,56 @@ const ProfilePage = () => {
                 <Save className="w-4 h-4" />
                 {saving ? "Saving..." : "Save Profile"}
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Artist Listener Insights Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart2 className="w-5 h-5" />
+                Artist Listener Insights
+              </CardTitle>
+              <CardDescription>
+                See which regions are listening to an artist (F1.7)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Artist name…"
+                  value={artistNameInput}
+                  onChange={(e) => setArtistNameInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') void handleArtistLookup(); }}
+                />
+                <Button variant="outline" size="icon" onClick={() => void handleArtistLookup()}>
+                  <Search className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {insightsLoading && (
+                <p className="text-sm text-muted-foreground">Loading…</p>
+              )}
+
+              {listenerRegions && listenerRegions.length > 0 && (
+                <div className="space-y-2">
+                  {listenerRegions.map((r) => (
+                    <div key={r.region_id} className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+                        {r.region_name}
+                      </span>
+                      <Badge variant="secondary">{r.play_count} plays</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {listenerRegions && listenerRegions.length === 0 && lookupArtistId && (
+                <p className="text-sm text-muted-foreground text-center py-2">
+                  No play data for this artist yet
+                </p>
+              )}
             </CardContent>
           </Card>
 
