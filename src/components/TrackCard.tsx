@@ -27,20 +27,29 @@ const formatPlayCount = (count: number | null): string => {
 export const TrackCard = ({ track, index, contextTag, onPlay }: TrackCardProps) => {
   const { play, isPlaying, currentTrack } = useAudio();
   const isCurrentTrack = currentTrack?.id === track.id;
+  const isThisTrackPlaying = isCurrentTrack && isPlaying;
+
+  const handleClick = () => {
+    play(track);
+    onPlay?.(track.id);
+  };
+
   return (
     <Card
       className="group bg-card/60 hover:bg-card/80 border-border/50 hover:border-primary/30 transition-all duration-300 cursor-pointer overflow-hidden"
-      onClick={() => onPlay?.(track.id)}
+      onClick={handleClick}
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
           {/* Track Number / Play Icon */}
           <button
-            onClick={(e) => { e.stopPropagation(); onPlay?.(track.id); }}
+            onClick={(e) => { e.stopPropagation(); handleClick(); }}
             className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted flex items-center justify-center group-hover:bg-primary/20 transition-colors hover:bg-primary/20"
-            aria-label="Play track"
+            aria-label={isThisTrackPlaying ? "Pause track" : "Play track"}
           >
-            {index !== undefined ? (
+            {isThisTrackPlaying ? (
+              <Pause className="w-5 h-5 text-primary" />
+            ) : index !== undefined ? (
               <>
                 <span className="text-muted-foreground group-hover:hidden font-semibold">
                   {index + 1}

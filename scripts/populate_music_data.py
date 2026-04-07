@@ -26,7 +26,9 @@ load_dotenv(project_root / '.env')
 
 # Initialize Supabase REST client
 SUPABASE_URL = os.getenv("VITE_SUPABASE_URL") or "https://gblzutsvoywatulevhux.supabase.co"
-SUPABASE_KEY = os.getenv("VITE_SUPABASE_PUBLISHABLE_KEY") or "sb_publishable_sqgyDoJBsQuFD_iQO8ruAw_zA3HX97R"
+# Use service role key to bypass RLS during data population.
+# Falls back to publishable key if not set (will fail on RLS-protected tables).
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("VITE_SUPABASE_PUBLISHABLE_KEY") or "sb_publishable_sqgyDoJBsQuFD_iQO8ruAw_zA3HX97R"
 
 # Remove quotes if present
 SUPABASE_URL = SUPABASE_URL.strip('"\'')
@@ -289,15 +291,22 @@ class MusicDataPopulator:
                 print(f"    [WIKIDATA] Country not mapped: {country_name}")
                 return []
 
-            # SPARQL query to get musicians from a country
+            # SPARQL query to get well-known musicians from a country.
+            # Ordered by sitelinks count (number of Wikipedia language editions) so
+            # that famous, unambiguous artists appear first — filtering out obscure
+            # entries that tend to have incorrect or incomplete citizenship data.
             sparql_query = f"""
-            SELECT ?musicianLabel WHERE {{
-              ?musician wdt:P31 wd:Q5 .  # human
-              ?musician wdt:P106 wd:Q639669 .  # occupation: musician
+            SELECT ?musicianLabel (COUNT(?sitelink) AS ?links) WHERE {{
+              ?musician wdt:P31 wd:Q5 .          # human
+              ?musician wdt:P106 wd:Q639669 .    # occupation: musician
               ?musician wdt:P27 wd:{country_code} .  # country of citizenship
               ?musician rdfs:label ?musicianLabel .
               FILTER (LANG(?musicianLabel) = "en")
+              ?sitelink schema:about ?musician .  # count Wikipedia sitelinks
             }}
+            GROUP BY ?musicianLabel
+            HAVING (COUNT(?sitelink) > 5)
+            ORDER BY DESC(?links)
             LIMIT {limit}
             """
 

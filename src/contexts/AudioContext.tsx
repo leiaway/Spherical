@@ -1,11 +1,17 @@
 import { createContext, useContext, useRef, useState, useEffect } from 'react';
 import type { Track } from '@/hooks/useRegions';
 
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
+  return match ? match[1] : null;
+}
+
 interface AudioContextType {
   currentTrack: Track | null;
   isPlaying: boolean;
   progress: number; // in seconds
   duration: number; // in seconds
+  youtubeVideoId: string | null;
   play: (track: Track) => void;
   pause: () => void;
   resume: () => void;
@@ -21,57 +27,66 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [youtubeVideoId, setYoutubeVideoId] = useState<string | null>(null);
 
   // Play a new track
   const play = (track: Track) => {
-    if (!audioRef.current) return;
-
+    console.log('[AudioContext] play() called:', { id: track.id, title: track.title, audio_url: track.audio_url });
     // If clicking the same track that's playing, toggle pause
     if (currentTrack?.id === track.id) {
       if (isPlaying) {
-        audioRef.current.pause();
+        audioRef.current?.pause();
         setIsPlaying(false);
+        setYoutubeVideoId(null);
       } else {
-        if (track.audio_url) {
-          audioRef.current.play().catch(() => {
-            // Playback failed, keep state consistent
-            setIsPlaying(false);
-          });
+        const ytId = track.audio_url ? extractYouTubeId(track.audio_url) : null;
+        if (ytId) {
+          setYoutubeVideoId(ytId);
+          setIsPlaying(true);
+        } else if (track.audio_url && audioRef.current) {
+          audioRef.current.play().catch(() => setIsPlaying(false));
           setIsPlaying(true);
         }
       }
       return;
     }
 
-    // New track - always set it, even if no audio_url
+    // New track
+    audioRef.current?.pause();
     setCurrentTrack(track);
     setProgress(0);
+    setYoutubeVideoId(null);
 
-    // Only try to play if there's an audio URL
-    if (track.audio_url) {
-      audioRef.current.src = track.audio_url;
-      audioRef.current.play().catch(() => {
-        // Playback failed
-        setIsPlaying(false);
-      });
-      setIsPlaying(true);
-    } else {
+    if (!track.audio_url) {
       setIsPlaying(false);
+      return;
+    }
+
+    const ytId = extractYouTubeId(track.audio_url);
+    if (ytId) {
+      setYoutubeVideoId(ytId);
+      setIsPlaying(true);
+    } else if (audioRef.current) {
+      audioRef.current.src = track.audio_url;
+      audioRef.current.play().catch(() => setIsPlaying(false));
+      setIsPlaying(true);
     }
   };
 
   const pause = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
+    audioRef.current?.pause();
+    setIsPlaying(false);
+    setYoutubeVideoId(null);
   };
 
   const resume = () => {
-    if (currentTrack?.audio_url && audioRef.current) {
-      audioRef.current.play().catch(() => {
-        setIsPlaying(false);
-      });
+    if (!currentTrack?.audio_url) return;
+    const ytId = extractYouTubeId(currentTrack.audio_url);
+    if (ytId) {
+      setYoutubeVideoId(ytId);
+      setIsPlaying(true);
+    } else if (audioRef.current) {
+      audioRef.current.play().catch(() => setIsPlaying(false));
       setIsPlaying(true);
     }
   };
@@ -91,6 +106,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsPlaying(false);
     setProgress(0);
     setDuration(0);
+    setYoutubeVideoId(null);
   };
 
   // Update progress on timeupdate
@@ -98,18 +114,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handleTimeUpdate = () => {
-      setProgress(audio.currentTime);
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration || 0);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
-    };
+    const handleTimeUpdate = () => setProgress(audio.currentTime);
+    const handleLoadedMetadata = () => setDuration(audio.duration || 0);
+    const handleEnded = () => { setIsPlaying(false); setProgress(0); };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -123,7 +130,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   return (
-    <AudioContext.Provider value={{ currentTrack, isPlaying, progress, duration, play, pause, resume, seek, clear }}>
+    <AudioContext.Provider value={{ currentTrack, isPlaying, progress, duration, youtubeVideoId, play, pause, resume, seek, clear }}>
       {children}
       <audio ref={audioRef} crossOrigin="anonymous" />
     </AudioContext.Provider>

@@ -45,7 +45,7 @@ export const DiscoverySection = ({
       p_user_id: userId,
       p_track_id: trackId,
     });
-    queryClient.invalidateQueries({ queryKey: ['personalized-region-tracks'] });
+    // Don't invalidate immediately — let the order update on next page load
   }, [userId, queryClient]);
 
   // F1.2 — Fetch home-region content if user has a different home country

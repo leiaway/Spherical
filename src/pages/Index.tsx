@@ -21,6 +21,7 @@ import { useRegions, useRegionByCountry } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon } from "lucide-react";
+import { RegionCarousel } from "@/components/RegionCarousel";
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -287,26 +288,11 @@ const Index = () => {
 
             {/* Other Regions */}
             {regions && regions.length > 1 && (
-              <section className="space-y-6 pt-8 border-t border-border">
-                <h3 className="text-xl font-semibold text-foreground">
-                  Explore Other Frequencies
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {regions
-                    .filter((r) => r.id !== currentRegionId)
-                    .map((region) => (
-                      <Button
-                        key={region.id}
-                        variant="outline"
-                        className="h-auto py-4 flex flex-col items-start text-left hover:border-primary hover:bg-primary/5"
-                        onClick={() => setCurrentRegionId(region.id)}
-                      >
-                        <span className="font-semibold text-sm">{region.name}</span>
-                        <span className="text-xs text-muted-foreground">{region.country}</span>
-                      </Button>
-                    ))}
-                </div>
-              </section>
+              <RegionCarousel
+                regions={regions}
+                currentRegionId={currentRegionId ?? ""}
+                onRegionSelect={setCurrentRegionId}
+              />
             )}
           </div>
         )}
