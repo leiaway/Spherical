@@ -9,9 +9,7 @@ import { ArtistCard } from "./ArtistCard";
 import { useRegionArtists, useRegionTracks, type Region } from "@/hooks/useRegions";
 import { calculateDistance } from "@/lib/calculateDistance";
 import { usePersonalizedRegionTracks } from "@/hooks/usePersonalizedRegionTracks";
-import { useRegionTracks } from "@/hooks/useRegions";
 import { supabase } from "@/integrations/supabase/client";
-import { calculateDistance } from "@/lib/calculateDistance";
 import { Music, Users, MapPin, Sparkles, RefreshCw, CalendarDays } from "lucide-react";
 import { MoodPlaylistPanel } from "./MoodPlaylistPanel";
 

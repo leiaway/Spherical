@@ -45,8 +45,6 @@ const Index = () => {
 
   const { data: regions, isLoading: regionsLoading } = useRegions();
   const { user, loading: authLoading, signOut } = useAuth();
-  const navigate = useNavigate();
-  const [loadingPreference, setLoadingPreference] = useState(true);
 
   // Load location preference from database on mount
   useEffect(() => {
