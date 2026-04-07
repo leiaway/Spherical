@@ -21,7 +21,7 @@ import { useRegions } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
