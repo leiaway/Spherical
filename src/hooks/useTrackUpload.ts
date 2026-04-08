@@ -12,6 +12,7 @@ export interface TrackUploadInput {
   mood?: string;
   audioUrl?: string;
   coverImageUrl?: string;
+  youtubeUrl?: string;
 }
 
 /**
@@ -65,6 +66,7 @@ export const useTrackUpload = () => {
           mood: input.mood || null,
           audio_url: input.audioUrl?.trim() || null,
           cover_image_url: input.coverImageUrl?.trim() || null,
+          youtube_url: input.youtubeUrl?.trim() || null,
         })
         .select('id')
         .single();

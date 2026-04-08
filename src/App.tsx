@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Social from "./pages/Social";
 import Profile from "./pages/Profile";
+import Upload from "./pages/Upload";
 import NotFound from "./pages/NotFound";
 import { AudioProvider } from "@/contexts/AudioContext";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/social" element={<Social />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/upload" element={<Upload />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
