@@ -325,9 +325,11 @@ export type Database = {
           duration_seconds: number | null
           genre_id: string | null
           id: string
+          mood: string | null
           play_count: number | null
           region_id: string | null
           title: string
+          youtube_url: string | null
         }
         Insert: {
           artist_id: string
@@ -338,9 +340,11 @@ export type Database = {
           duration_seconds?: number | null
           genre_id?: string | null
           id?: string
+          mood?: string | null
           play_count?: number | null
           region_id?: string | null
           title: string
+          youtube_url?: string | null
         }
         Update: {
           artist_id?: string
@@ -351,9 +355,11 @@ export type Database = {
           duration_seconds?: number | null
           genre_id?: string | null
           id?: string
+          mood?: string | null
           play_count?: number | null
           region_id?: string | null
           title?: string
+          youtube_url?: string | null
         }
         Relationships: [
           {

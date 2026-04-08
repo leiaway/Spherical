@@ -20,7 +20,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions, useRegionByCountry } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon } from "lucide-react";
+import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon, Mic2 } from "lucide-react";
 import { RegionCarousel } from "@/components/RegionCarousel";
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -255,7 +255,12 @@ const Index = () => {
                 <PlaylistManager regionId={currentRegionId} regionName={currentRegion?.name} />
 
                 {/* Track Upload */}
-                <TrackUploadDialog regionId={currentRegionId} />
+                <Link to="/upload">
+                  <Button variant="outline" size="sm" className="gap-2 w-full">
+                    <Mic2 className="w-4 h-4" />
+                    Upload a Track
+                  </Button>
+                </Link>
 
                 {/* Emerging Artists Recommendations */}
                 <EmergingArtistsRecommendations regionId={currentRegionId} />
