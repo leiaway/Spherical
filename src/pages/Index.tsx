@@ -256,7 +256,10 @@ const Index = () => {
 
                 {/* Track Upload */}
                 <Link to="/upload">
-                  <TrackUploadDialog regionId={currentRegionId} />
+                  <Button variant="outline" size="sm" className="gap-2 w-full">
+                    <Mic2 className="w-4 h-4" />
+                    Upload a Track
+                  </Button>
                 </Link>
 
                 {/* Emerging Artists Recommendations */}
