@@ -55,7 +55,7 @@ export const useTrackUpload = () => {
       }
 
       // Step 2: insert the track with all tags
-      const { data: track, error: trackError } = await supabase
+      const { data: track, error: trackError } = await (supabase as any)
         .from('tracks')
         .insert({
           title: input.title.trim(),
