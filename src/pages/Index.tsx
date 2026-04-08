@@ -255,7 +255,9 @@ const Index = () => {
                 <PlaylistManager regionId={currentRegionId} regionName={currentRegion?.name} />
 
                 {/* Track Upload */}
-                <TrackUploadDialog regionId={currentRegionId} />
+                <Link to="/upload">
+                  <TrackUploadDialog regionId={currentRegionId} />
+                </Link>
 
                 {/* Emerging Artists Recommendations */}
                 <EmergingArtistsRecommendations regionId={currentRegionId} />
