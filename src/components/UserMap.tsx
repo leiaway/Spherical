@@ -250,3 +250,4 @@ export const UserMap = ({ className }: UserMapProps) => {
     </div>
   );
 };
+

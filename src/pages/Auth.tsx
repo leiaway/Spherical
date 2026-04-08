@@ -1,6 +1,9 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { getCurrentUserProfile } from "@/lib/auth";
+import { authSignInPasswordSchema, signInWithEmailPassword } from "@/lib/authShared";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,10 +20,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
+// Phase 1: Password rule shared with Talent Scout email sign-in (single source in authShared).
 const authSchema = z.object({
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
   phone: z.string().min(10, "Phone number must be at least 10 digits").optional().or(z.literal("")),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: authSignInPasswordSchema,
 });
 
 type AuthFormValues = z.infer<typeof authSchema>;
@@ -34,6 +38,14 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session, isTalentScout, isLoading: roleLoading } = useUserRole();
+
+  useEffect(() => {
+    if (roleLoading) return;
+    if (session) {
+      navigate(isTalentScout ? "/talent-scout" : "/", { replace: true });
+    }
+  }, [session, isTalentScout, roleLoading, navigate]);
 
   const form = useForm<AuthFormValues>({
     resolver: zodResolver(authSchema),
@@ -58,10 +70,7 @@ const Auth = () => {
         }
 
         if (isLogin) {
-          const { error } = await supabase.auth.signInWithPassword({
-            email: values.email,
-            password: values.password,
-          });
+          const { error } = await signInWithEmailPassword(values.email, values.password);
           if (error) throw error;
           toast({
             title: "Welcome back!",
@@ -113,7 +122,8 @@ const Auth = () => {
           });
         }
       }
-      navigate("/");
+      const profile = await getCurrentUserProfile();
+      navigate(profile?.role === "talent_scout" ? "/talent-scout" : "/");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -145,6 +155,14 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  if (roleLoading || session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-card to-background">
@@ -277,17 +295,20 @@ const Auth = () => {
             Sign in with Google
           </Button>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-primary hover:underline"
+              className="text-sm text-primary hover:underline block w-full"
               disabled={isLoading}
             >
               {isLogin
                 ? "Don't have an account? Sign up"
                 : "Already have an account? Sign in"}
             </button>
+            <p className="text-xs text-muted-foreground">
+              <Link to="/talent-scout/login" className="hover:underline">Talent Scout? Sign in here</Link>
+            </p>
           </div>
         </div>
       </div>

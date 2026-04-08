@@ -1,10 +1,14 @@
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useFriends } from '@/hooks/useFriends';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, UserPlus, Loader2 } from 'lucide-react';
+import { queryKeys } from '@/lib/queryKeys';
+import { getErrorMessage } from '@/lib/queryErrors';
+import { useToast } from '@/hooks/use-toast';
 
 /** Requirement: F7 (add friend – search users, send request). See docs/REQUIREMENTS_REFERENCE.md */
 
@@ -20,28 +24,38 @@ interface SearchResult {
 export const AddFriend = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [searching, setSearching] = useState(false);
   const [sendingTo, setSendingTo] = useState<string | null>(null);
   const { sendFriendRequest, currentUserId } = useFriends();
+  const { toast } = useToast();
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim() || !currentUserId) return;
-
-    setSearching(true);
-    setSearchResults([]);
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, display_name, avatar_url')
-      .ilike('display_name', `%${searchQuery}%`)
-      .neq('id', currentUserId)
-      .limit(10);
-
-    if (!error && data) {
+  const searchMutation = useMutation({
+    mutationKey: queryKeys.friends.searchProfiles,
+    mutationFn: async (term: string) => {
+      if (!currentUserId) throw new Error('Not signed in');
+      const { data, error } = await supabase.rpc('search_profiles_for_friends', {
+        search_term: term,
+        exclude_user_id: currentUserId,
+      });
+      if (error) throw error;
+      return (data ?? []) as SearchResult[];
+    },
+    onSuccess: (data) => {
       setSearchResults(data);
-    }
-    setSearching(false);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Search failed',
+        description: getErrorMessage(error),
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const term = searchQuery.trim();
+    if (!term || !currentUserId) return;
+    searchMutation.mutate(term);
   };
 
   const handleSendRequest = async (userId: string) => {
@@ -54,6 +68,8 @@ export const AddFriend = () => {
   if (!currentUserId) {
     return null;
   }
+
+  const searching = searchMutation.isPending;
 
   return (
     <div className="rounded-xl border border-border bg-card p-4">

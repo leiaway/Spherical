@@ -249,6 +249,7 @@ export type Database = {
           home_country: string | null
           id: string
           location_enabled: boolean | null
+          role: "user" | "talent_scout"
           updated_at: string
         }
         Insert: {
@@ -261,6 +262,7 @@ export type Database = {
           home_country?: string | null
           id: string
           location_enabled?: boolean | null
+          role?: "user" | "talent_scout"
           updated_at?: string
         }
         Update: {
@@ -273,6 +275,7 @@ export type Database = {
           home_country?: string | null
           id?: string
           location_enabled?: boolean | null
+          role?: "user" | "talent_scout"
           updated_at?: string
         }
         Relationships: [
@@ -384,7 +387,45 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      /** Phase 2/3: Boolean gate without returning the `role` column in a row payload. */
+      is_talent_scout: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      },
+      /** Phase 2: Map markers; excludes sensitive profile columns. */
+      profiles_for_user_map: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          display_name: string | null
+          avatar_url: string | null
+          current_latitude: number | null
+          current_longitude: number | null
+        }[]
+      },
+      /** Phase 2: Friend discovery with caller-bound exclude id. */
+      search_profiles_for_friends: {
+        Args: { search_term: string; exclude_user_id: string }
+        Returns: {
+          id: string
+          display_name: string | null
+          avatar_url: string | null
+        }[]
+      },
+      /** Phase 2: Enrich IDs with display fields only. */
+      public_profiles_by_ids: {
+        Args: { profile_ids: string[] }
+        Returns: {
+          id: string
+          display_name: string | null
+          avatar_url: string | null
+        }[]
+      },
+      /** Phase 2: For future scout-only RLS policies. */
+      current_user_is_talent_scout: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      },
     }
     Enums: {
       [_ in never]: never

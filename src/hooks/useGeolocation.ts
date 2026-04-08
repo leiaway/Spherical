@@ -145,7 +145,7 @@ export const useGeolocation = () => {
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 300000, // 5 minutes cache
+        maximumAge: 300000,
       }
     );
   }, [findNearestRegion]);

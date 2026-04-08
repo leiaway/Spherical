@@ -7,11 +7,17 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Social from "./pages/Social";
 import Profile from "./pages/Profile";
+import TalentScoutLogin from "./pages/TalentScoutLogin";
+import TalentScoutDashboard from "./pages/TalentScoutDashboard";
+import TalentScoutForgotPassword from "./pages/TalentScoutForgotPassword";
+import TalentScoutResetPassword from "./pages/TalentScoutResetPassword";
+import { RequireTalentScout } from "./components/RequireTalentScout";
 import NotFound from "./pages/NotFound";
 import { AudioProvider } from "@/contexts/AudioContext";
 import { AudioPlayerBar } from "@/components/AudioPlayerBar";
 
 const queryClient = new QueryClient();
+
 
 /** Root app: QueryClient, TooltipProvider, Toaster, Router with /, /auth, and 404. */
 const App = () => (
@@ -26,7 +32,11 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/social" element={<Social />} />
             <Route path="/profile" element={<Profile />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/talent-scout/login" element={<TalentScoutLogin />} />
+          <Route path="/talent-scout/forgot-password" element={<TalentScoutForgotPassword />} />
+          <Route path="/talent-scout/reset-password" element={<TalentScoutResetPassword />} />
+          <Route path="/talent-scout" element={<RequireTalentScout><TalentScoutDashboard /></RequireTalentScout>} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           <AudioPlayerBar />
