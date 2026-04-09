@@ -14,7 +14,6 @@ import { UserMap } from "@/components/UserMap";
 import { EmergingArtistsRecommendations } from "@/components/EmergingArtistsRecommendations";
 import { PlaylistManager } from "@/components/PlaylistManager";
 import { TrackUploadDialog } from "@/components/TrackUploadDialog";
-import { SuggestedFriends } from "@/components/SuggestedFriends";
 import { NotificationBell } from "@/components/NotificationBell";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions, useRegionByCountry } from "@/hooks/useRegions";

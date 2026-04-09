@@ -185,6 +185,20 @@ export const fetchRegionArtists = async (regionId: string): Promise<Artist[]> =>
 };
 
 /**
+ * Fetches tracks from regions other than the given one, ordered by play_count (F2.3).
+ * Powers the "World Music" discovery tab for cross-cultural recommendations.
+ */
+export const fetchMulticulturalTracks = async (excludeRegionId: string, limit = 20): Promise<Track[]> => {
+  const { data, error } = await supabase.rpc('get_multicultural_tracks', {
+    p_exclude_region_id: excludeRegionId,
+    p_limit: limit,
+  });
+
+  if (error) throw error;
+  return ((data as Record<string, unknown>[]) ?? []).map(mapRpcRowToTrack);
+};
+
+/**
  * Fetches up to 10 emerging artists across all regions, ordered by listener_count.
  * Powers the "Trending Local Artists" view (F1.9).
  */

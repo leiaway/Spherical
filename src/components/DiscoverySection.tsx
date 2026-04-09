@@ -6,11 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrackCard } from "./TrackCard";
 import { ArtistCard } from "./ArtistCard";
-import { useRegionArtists, useRegionTracks, type Region } from "@/hooks/useRegions";
-import { calculateDistance } from "@/lib/calculateDistance";
+import { useRegionArtists, useRegionTracks, useMulticulturalTracks, type Region } from "@/hooks/useRegions";
 import { usePersonalizedRegionTracks } from "@/hooks/usePersonalizedRegionTracks";
 import { supabase } from "@/integrations/supabase/client";
-import { Music, Users, MapPin, Sparkles, RefreshCw, CalendarDays } from "lucide-react";
+import { Music, Users, MapPin, Sparkles, RefreshCw, CalendarDays, Globe } from "lucide-react";
 import { MoodPlaylistPanel } from "./MoodPlaylistPanel";
 
 /** Requirement: F1 (geo-tracking local mix), F5 (cultural recommendations by region), F8 (emerging artists tab). See docs/REQUIREMENTS_REFERENCE.md */
@@ -53,25 +52,8 @@ export const DiscoverySection = ({
   const { data: homeTracks } = useRegionTracks(homeRegionId);
   const { data: homeArtists } = useRegionArtists(homeRegionId);
 
-  useEffect(() => {
-    console.log("🧪 VIBE Test: Starting Manual Audit of calculateDistance...");
-
-    try {
-      // 1. Test Valid Input
-      const dist = calculateDistance(40.7128, -74.006, 34.0522, -118.2437);
-      console.log("✅ Valid Calculation (NYC to LA):", dist, "km");
-
-      // 2. Test YOUR Human-Verified Boundary (The V-Event)
-      console.log("⚠️ Triggering Human-Verified Boundary (Lat: 105)...");
-      calculateDistance(105, -74.006, 34.0522, -118.2437);
-    } catch (error) {
-      // This proves your "Reject NaN" logic is working!
-      console.error(
-        "🎯 TEST LOG SUCCESS:",
-        error instanceof Error ? error.message : error
-      );
-    }
-  }, []);
+  // F2.3 — Multi-cultural tracks from other regions
+  const { data: multiculturalTracks, isLoading: multiculturalLoading } = useMulticulturalTracks(region.id);
 
   /** Interleave two arrays: [A, B, A, B, ...], appending remaining items from the longer one. */
   function interleave<T>(primary: T[], secondary: T[]): Array<T & { contextTag: "Local" | "Home" }> {
@@ -150,6 +132,10 @@ export const DiscoverySection = ({
           <TabsTrigger value="mood" className="gap-2 data-[state=active]:bg-card">
             <CalendarDays className="w-4 h-4" />
             Mood & Festivals
+          </TabsTrigger>
+          <TabsTrigger value="world" className="gap-2 data-[state=active]:bg-card">
+            <Globe className="w-4 h-4" />
+            World Music
           </TabsTrigger>
         </TabsList>
 
@@ -232,6 +218,31 @@ export const DiscoverySection = ({
         {/* Mood & Festivals Tab */}
         <TabsContent value="mood" className="space-y-4">
           <MoodPlaylistPanel region={region} onPlay={handleTrackPlay} />
+        </TabsContent>
+
+        {/* World Music Tab — F2.3 */}
+        <TabsContent value="world" className="space-y-4">
+          {multiculturalLoading ? (
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-24 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : multiculturalTracks && multiculturalTracks.length > 0 ? (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Top tracks from regions beyond {region.name}
+              </p>
+              {multiculturalTracks.map((track, index) => (
+                <TrackCard key={track.id} track={track} index={index} onPlay={handleTrackPlay} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              <Globe className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p>No tracks from other regions yet</p>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </section>
