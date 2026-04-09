@@ -66,9 +66,9 @@ const Upload = () => {
   const [title, setTitle] = useState("");
   const [artistName, setArtistName] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [regionId, setRegionId] = useState("");
-  const [genreId, setGenreId] = useState("");
-  const [mood, setMood] = useState("");
+  const [regionId, setRegionId] = useState<string | undefined>(undefined);
+  const [genreId, setGenreId] = useState<string | undefined>(undefined);
+  const [mood, setMood] = useState<string | undefined>(undefined);
   const [culturalContext, setCulturalContext] = useState("");
   const [fetchingMeta, setFetchingMeta] = useState(false);
   const lastFetchedId = useRef<string | null>(null);
