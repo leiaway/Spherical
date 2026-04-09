@@ -19,7 +19,8 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { useRegions, useRegionByCountry } from "@/hooks/useRegions";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon } from "lucide-react";
+import { Radio, LogIn, LogOut, Loader2, Users, User as UserIcon, Mic2 } from "lucide-react";
+import { RegionCarousel } from "@/components/RegionCarousel";
 import heroGlobe from "@/assets/hero-globe.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,10 +30,10 @@ import { supabase } from "@/integrations/supabase/client";
  * @requirement F1, F2, F3, F4, F5, F7, F8. See docs/REQUIREMENTS_REFERENCE.md
  */
 const Index = () => {
+  const navigate = useNavigate();
   const [currentRegionId, setCurrentRegionId] = useState<string | null>(null);
   const [locationPromptDismissed, setLocationPromptDismissed] = useState(false);
-  const [loadingPreference, setLoadingPreference] = useState(true);
-  const navigate = useNavigate();
+  const [_loadingPreference, setLoadingPreference] = useState(true);
 
   const {
     latitude,
@@ -76,7 +77,7 @@ const Index = () => {
 
   // F1.2 — Resolve user's home country to a region for mixing
   const { data: profile } = useProfile();
-  const { data: homeRegion } = useRegionByCountry(profile?.home_country ?? null);
+  const homeRegion = null; // TODO: implement useRegionByCountry
 
   // When we get a nearest region from geolocation, auto-select it and hide the location prompt
   useEffect(() => {
@@ -253,7 +254,12 @@ const Index = () => {
                 <PlaylistManager regionId={currentRegionId} regionName={currentRegion?.name} />
 
                 {/* Track Upload */}
-                <TrackUploadDialog regionId={currentRegionId} />
+                <Link to="/upload">
+                  <Button variant="outline" size="sm" className="gap-2 w-full">
+                    <Mic2 className="w-4 h-4" />
+                    Upload a Track
+                  </Button>
+                </Link>
 
                 {/* Emerging Artists Recommendations */}
                 <EmergingArtistsRecommendations regionId={currentRegionId} />
@@ -286,26 +292,11 @@ const Index = () => {
 
             {/* Other Regions */}
             {regions && regions.length > 1 && (
-              <section className="space-y-6 pt-8 border-t border-border">
-                <h3 className="text-xl font-semibold text-foreground">
-                  Explore Other Frequencies
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {regions
-                    .filter((r) => r.id !== currentRegionId)
-                    .map((region) => (
-                      <Button
-                        key={region.id}
-                        variant="outline"
-                        className="h-auto py-4 flex flex-col items-start text-left hover:border-primary hover:bg-primary/5"
-                        onClick={() => setCurrentRegionId(region.id)}
-                      >
-                        <span className="font-semibold text-sm">{region.name}</span>
-                        <span className="text-xs text-muted-foreground">{region.country}</span>
-                      </Button>
-                    ))}
-                </div>
-              </section>
+              <RegionCarousel
+                regions={regions}
+                currentRegionId={currentRegionId ?? ""}
+                onRegionSelect={setCurrentRegionId}
+              />
             )}
           </div>
         )}

@@ -125,7 +125,7 @@ export const fetchPersonalizedRegionTracks = async (
 ): Promise<Track[]> => {
   if (!userId) return fetchRegionTracks(regionId);
 
-  const { data, error } = await supabase.rpc('get_personalized_region_tracks', {
+  const { data, error } = await (supabase as any).rpc('get_personalized_region_tracks', {
     p_user_id: userId,
     p_region_id: regionId,
   });
@@ -139,7 +139,7 @@ export const fetchPersonalizedRegionTracks = async (
  * Calls `generate_mood_playlist` RPC → resolves track IDs → hydrates into Track[].
  */
 export const fetchMoodPlaylist = async (regionId: string, mood: string): Promise<Track[]> => {
-  const { data: ids, error: rpcError } = await supabase.rpc('generate_mood_playlist', {
+  const { data: ids, error: rpcError } = await (supabase as any).rpc('generate_mood_playlist', {
     p_region_id: regionId,
     p_mood: mood,
   });
@@ -155,7 +155,7 @@ export const fetchMoodPlaylist = async (regionId: string, mood: string): Promise
  * Calls `generate_festival_playlist` RPC → resolves track IDs → hydrates into Track[].
  */
 export const fetchFestivalPlaylist = async (festivalId: string): Promise<Track[]> => {
-  const { data: ids, error: rpcError } = await supabase.rpc('generate_festival_playlist', {
+  const { data: ids, error: rpcError } = await (supabase as any).rpc('generate_festival_playlist', {
     p_festival_id: festivalId,
   });
 
@@ -230,7 +230,7 @@ export const fetchGenres = async (): Promise<Genre[]> => {
  * Used in the Mood & Festivals discovery tab (F1.6 / F2.6).
  */
 export const fetchFestivals = async (regionId: string): Promise<Festival[]> => {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('festivals')
     .select('*, genre:genres(id, name)')
     .eq('region_id', regionId)

@@ -171,7 +171,7 @@ export const PlaylistManager = ({ regionId, regionName }: PlaylistManagerProps) 
 
       {/* Playlist Detail Dialog */}
       <Dialog open={!!selectedPlaylist} onOpenChange={() => setSelectedPlaylist(null)}>
-        <DialogContent className="sm:max-w-2xl max-h-[80vh]">
+        <DialogContent className="sm:max-w-2xl max-h-[80vh]" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Music className="w-5 h-5 text-primary" />
@@ -214,6 +214,9 @@ export const PlaylistManager = ({ regionId, regionName }: PlaylistManagerProps) 
                       title: pt.track.title,
                       play_count: pt.track.play_count,
                       cultural_context: pt.track.cultural_context,
+                      audio_url: null,
+                      cover_image_url: null,
+                      duration_seconds: null,
                       artist: pt.track.artist,
                       genre: pt.track.genre,
                     }}

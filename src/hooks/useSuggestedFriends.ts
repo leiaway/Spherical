@@ -27,7 +27,7 @@ export const useSuggestedFriends = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('get_suggested_friends', { p_user_id: user.id });
 
 

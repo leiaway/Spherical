@@ -60,7 +60,7 @@ export const EditPlaylistDialog = ({ playlist }: EditPlaylistDialogProps) => {
           Edit
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Edit Playlist</DialogTitle>
         </DialogHeader>

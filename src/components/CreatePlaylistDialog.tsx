@@ -64,7 +64,7 @@ export const CreatePlaylistDialog = ({ regionId, regionName }: CreatePlaylistDia
           New Playlist
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Create New Playlist</DialogTitle>
         </DialogHeader>

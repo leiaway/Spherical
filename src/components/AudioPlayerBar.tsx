@@ -5,10 +5,11 @@ import { Slider } from '@/components/ui/slider';
 
 /**
  * Fixed bottom player bar showing currently playing track with controls.
- * Only visible when a track is actively playing.
+ * Only visible when a track is loaded. YouTube tracks embed a small iframe
+ * (must be visible for browser autoplay policy to allow playback).
  */
 export const AudioPlayerBar = () => {
-  const { currentTrack, isPlaying, progress, duration, pause, resume, seek, clear } = useAudio();
+  const { currentTrack, isPlaying, progress, duration, youtubeVideoId, pause, resume, seek, clear } = useAudio();
 
   if (!currentTrack) return null;
 
@@ -23,12 +24,28 @@ export const AudioPlayerBar = () => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const hasAudio = currentTrack.audio_url;
+  const isYouTube = !!youtubeVideoId;
+  const hasAudio = !!(currentTrack.audio_url);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg z-40">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center gap-4">
+
+          {/* YouTube thumbnail embed (must be visible for autoplay) */}
+          {isYouTube && (
+            <div className="flex-shrink-0 w-20 h-[45px] rounded overflow-hidden">
+              <iframe
+                key={youtubeVideoId}
+                src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0`}
+                allow="autoplay; encrypted-media"
+                allowFullScreen={false}
+                className="w-full h-full"
+                title="audio-player"
+              />
+            </div>
+          )}
+
           {/* Track Info */}
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-sm text-foreground truncate">
@@ -39,7 +56,7 @@ export const AudioPlayerBar = () => {
             </p>
           </div>
 
-          {hasAudio ? (
+          {hasAudio && !isYouTube ? (
             <>
               {/* Play/Pause Button */}
               <Button
@@ -72,14 +89,13 @@ export const AudioPlayerBar = () => {
                 </span>
               </div>
 
-              {/* Volume Icon (placeholder) */}
               <Volume2 className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             </>
-          ) : (
+          ) : !isYouTube ? (
             <div className="text-xs text-muted-foreground">
               Preview unavailable
             </div>
-          )}
+          ) : null}
 
           {/* Close Button */}
           <Button

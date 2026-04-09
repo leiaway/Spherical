@@ -111,7 +111,7 @@ export const UserMap = ({ className }: UserMapProps) => {
             const el = document.createElement('div');
             el.className = 'user-marker';
             el.innerHTML = `
-              <div class="w-8 h-8 rounded-full bg-primary/90 border-2 border-white shadow-lg flex items-center justify-center text-white text-xs font-semibold cursor-pointer hover:scale-110 transition-transform">
+              <div style="width:2rem;height:2rem;border-radius:9999px;background:hsl(262 83% 58%);border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;color:#ffffff;font-size:0.75rem;font-weight:600;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">
                 ${user.display_name?.[0]?.toUpperCase() || '?'}
               </div>
             `;
@@ -121,8 +121,8 @@ export const UserMap = ({ className }: UserMapProps) => {
               .setPopup(
                 new mapboxgl.Popup({ offset: 25, closeButton: false })
                   .setHTML(`
-                    <div class="p-2 text-center">
-                      <p class="font-semibold text-sm">${user.display_name || 'Anonymous'}</p>
+                    <div style="padding:0.5rem;text-align:center;">
+                      <p style="font-weight:600;font-size:0.875rem;color:#111827;">${user.display_name || 'Anonymous'}</p>
                     </div>
                   `)
               )

@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -40,11 +40,11 @@ export const DiscoverySection = ({
 
   const handleTrackPlay = useCallback(async (trackId: string) => {
     if (!userId) return;
-    await supabase.rpc('increment_user_track_play', {
+    await (supabase as any).rpc('increment_user_track_play', {
       p_user_id: userId,
       p_track_id: trackId,
     });
-    queryClient.invalidateQueries({ queryKey: ['personalized-region-tracks'] });
+    // Don't invalidate immediately — let the order update on next page load
   }, [userId, queryClient]);
 
   // F1.2 — Fetch home-region content if user has a different home country
