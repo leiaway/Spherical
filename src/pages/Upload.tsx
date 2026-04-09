@@ -59,8 +59,8 @@ const Upload = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { upload } = useTrackUpload();
-  const { data: regions } = useRegions();
-  const { data: genres } = useGenres();
+  const { data: regions, isLoading: regionsLoading } = useRegions();
+  const { data: genres, isLoading: genresLoading } = useGenres();
   const { toast } = useToast();
 
   const [title, setTitle] = useState("");
