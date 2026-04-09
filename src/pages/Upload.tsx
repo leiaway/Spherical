@@ -59,16 +59,16 @@ const Upload = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { upload } = useTrackUpload();
-  const { data: regions } = useRegions();
-  const { data: genres } = useGenres();
+  const { data: regions, isLoading: regionsLoading } = useRegions();
+  const { data: genres, isLoading: genresLoading } = useGenres();
   const { toast } = useToast();
 
   const [title, setTitle] = useState("");
   const [artistName, setArtistName] = useState("");
   const [youtubeUrl, setYoutubeUrl] = useState("");
-  const [regionId, setRegionId] = useState("");
-  const [genreId, setGenreId] = useState("");
-  const [mood, setMood] = useState("");
+  const [regionId, setRegionId] = useState<string | undefined>(undefined);
+  const [genreId, setGenreId] = useState<string | undefined>(undefined);
+  const [mood, setMood] = useState<string | undefined>(undefined);
   const [culturalContext, setCulturalContext] = useState("");
   const [fetchingMeta, setFetchingMeta] = useState(false);
   const lastFetchedId = useRef<string | null>(null);
@@ -124,8 +124,8 @@ const Upload = () => {
       await upload.mutateAsync({
         title,
         artistName,
-        regionId,
-        genreId,
+        regionId: regionId!,
+        genreId: genreId!,
         mood: mood || undefined,
         culturalContext: culturalContext || undefined,
         youtubeUrl: youtubeUrl || undefined,
@@ -141,9 +141,9 @@ const Upload = () => {
       setTitle("");
       setArtistName("");
       setYoutubeUrl("");
-      setRegionId("");
-      setGenreId("");
-      setMood("");
+      setRegionId(undefined);
+      setGenreId(undefined);
+      setMood(undefined);
       setCulturalContext("");
     } catch {
       toast({
@@ -340,21 +340,24 @@ const Upload = () => {
                   <MapPin className="w-3.5 h-3.5 text-secondary" />
                   Region <span className="text-destructive">*</span>
                 </Label>
-                <Select value={regionId} onValueChange={setRegionId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Where is this music from?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {regions?.map((r) => (
-                      <SelectItem key={r.id} value={r.id}>
-                        <span className="flex items-center gap-2">
-                          <Globe className="w-3.5 h-3.5 text-muted-foreground" />
+                {regionsLoading ? (
+                  <div className="h-10 rounded-md border border-input bg-background flex items-center px-3 text-sm text-muted-foreground">
+                    Loading regions…
+                  </div>
+                ) : (
+                  <Select value={regionId} onValueChange={setRegionId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Where is this music from?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regions?.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
                           {r.name} — {r.country}
-                        </span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Genre */}
@@ -363,18 +366,24 @@ const Upload = () => {
                   <Music2 className="w-3.5 h-3.5 text-accent" />
                   Genre <span className="text-destructive">*</span>
                 </Label>
-                <Select value={genreId} onValueChange={setGenreId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select genre" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {genres?.map((g) => (
-                      <SelectItem key={g.id} value={g.id}>
-                        {g.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {genresLoading ? (
+                  <div className="h-10 rounded-md border border-input bg-background flex items-center px-3 text-sm text-muted-foreground">
+                    Loading genres…
+                  </div>
+                ) : (
+                  <Select value={genreId} onValueChange={setGenreId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select genre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {genres?.map((g) => (
+                        <SelectItem key={g.id} value={g.id}>
+                          {g.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
 
