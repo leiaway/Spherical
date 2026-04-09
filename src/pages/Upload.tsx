@@ -242,16 +242,24 @@ const Upload = () => {
               Paste a YouTube URL and we'll embed your performance right into
               discovery feeds.
             </p>
-            <Input
-              value={youtubeUrl}
-              onChange={(e) => setYoutubeUrl(e.target.value)}
-              placeholder="https://youtube.com/watch?v=..."
-              className={`text-base h-12 ${
-                youtubeUrl && !isValidYoutube
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }`}
-            />
+            <div className="relative">
+              <Input
+                value={youtubeUrl}
+                onChange={(e) => handleYoutubeChange(e.target.value)}
+                placeholder="https://youtube.com/watch?v=..."
+                className={`text-base h-12 ${
+                  youtubeUrl && !isValidYoutube
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }`}
+              />
+              {fetchingMeta && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-xs">Fetching details…</span>
+                </div>
+              )}
+            </div>
             {youtubeUrl && !isValidYoutube && (
               <p className="text-xs text-destructive">
                 Please enter a valid YouTube URL
