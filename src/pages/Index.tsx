@@ -158,7 +158,15 @@ const Index = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="gap-2">
-                      <UserIcon className="w-4 h-4" />
+                      {profile?.avatar_url ? (
+                        <img
+                          src={profile.avatar_url}
+                          alt="Profile"
+                          className="w-5 h-5 rounded-full object-cover"
+                        />
+                      ) : (
+                        <UserIcon className="w-4 h-4" />
+                      )}
                       {user.email || user.phone || "Account"}
                     </Button>
                   </DropdownMenuTrigger>
