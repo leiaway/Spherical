@@ -366,18 +366,24 @@ const Upload = () => {
                   <Music2 className="w-3.5 h-3.5 text-accent" />
                   Genre <span className="text-destructive">*</span>
                 </Label>
-                <Select value={genreId} onValueChange={setGenreId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select genre" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {genres?.map((g) => (
-                      <SelectItem key={g.id} value={g.id}>
-                        {g.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {genresLoading ? (
+                  <div className="h-10 rounded-md border border-input bg-background flex items-center px-3 text-sm text-muted-foreground">
+                    Loading genres…
+                  </div>
+                ) : (
+                  <Select value={genreId} onValueChange={setGenreId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select genre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {genres?.map((g) => (
+                        <SelectItem key={g.id} value={g.id}>
+                          {g.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
             </div>
 
