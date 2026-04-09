@@ -340,18 +340,24 @@ const Upload = () => {
                   <MapPin className="w-3.5 h-3.5 text-secondary" />
                   Region <span className="text-destructive">*</span>
                 </Label>
-                <Select value={regionId} onValueChange={setRegionId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Where is this music from?" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {regions?.map((r) => (
-                      <SelectItem key={r.id} value={r.id}>
-                        {r.name} — {r.country}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {regionsLoading ? (
+                  <div className="h-10 rounded-md border border-input bg-background flex items-center px-3 text-sm text-muted-foreground">
+                    Loading regions…
+                  </div>
+                ) : (
+                  <Select value={regionId} onValueChange={setRegionId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Where is this music from?" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regions?.map((r) => (
+                        <SelectItem key={r.id} value={r.id}>
+                          {r.name} — {r.country}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Genre */}
