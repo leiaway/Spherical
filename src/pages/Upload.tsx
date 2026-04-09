@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -69,9 +70,44 @@ const Upload = () => {
   const [genreId, setGenreId] = useState("");
   const [mood, setMood] = useState("");
   const [culturalContext, setCulturalContext] = useState("");
+  const [fetchingMeta, setFetchingMeta] = useState(false);
+  const lastFetchedId = useRef<string | null>(null);
 
   const youtubeId = extractYouTubeId(youtubeUrl);
   const isValidYoutube = youtubeUrl === "" || YOUTUBE_REGEX.test(youtubeUrl);
+
+  // Auto-populate from YouTube metadata
+  const fetchYouTubeMetadata = useCallback(
+    async (url: string) => {
+      const id = extractYouTubeId(url);
+      if (!id || id === lastFetchedId.current) return;
+      lastFetchedId.current = id;
+      setFetchingMeta(true);
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "youtube-metadata",
+          { body: { videoId: id } }
+        );
+        if (!error && data) {
+          if (data.title && !title) setTitle(data.title);
+          if ((data.artist || data.channelName) && !artistName)
+            setArtistName(data.artist || data.channelName);
+        }
+      } catch {
+        // silent — user can still fill fields manually
+      } finally {
+        setFetchingMeta(false);
+      }
+    },
+    [title, artistName]
+  );
+
+  const handleYoutubeChange = (value: string) => {
+    setYoutubeUrl(value);
+    if (YOUTUBE_REGEX.test(value)) {
+      fetchYouTubeMetadata(value);
+    }
+  };
   const canSubmit =
     title.trim() &&
     artistName.trim() &&
@@ -206,16 +242,24 @@ const Upload = () => {
               Paste a YouTube URL and we'll embed your performance right into
               discovery feeds.
             </p>
-            <Input
-              value={youtubeUrl}
-              onChange={(e) => setYoutubeUrl(e.target.value)}
-              placeholder="https://youtube.com/watch?v=..."
-              className={`text-base h-12 ${
-                youtubeUrl && !isValidYoutube
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }`}
-            />
+            <div className="relative">
+              <Input
+                value={youtubeUrl}
+                onChange={(e) => handleYoutubeChange(e.target.value)}
+                placeholder="https://youtube.com/watch?v=..."
+                className={`text-base h-12 ${
+                  youtubeUrl && !isValidYoutube
+                    ? "border-destructive focus-visible:ring-destructive"
+                    : ""
+                }`}
+              />
+              {fetchingMeta && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-xs">Fetching details…</span>
+                </div>
+              )}
+            </div>
             {youtubeUrl && !isValidYoutube && (
               <p className="text-xs text-destructive">
                 Please enter a valid YouTube URL
