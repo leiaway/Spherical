@@ -70,9 +70,44 @@ const Upload = () => {
   const [genreId, setGenreId] = useState("");
   const [mood, setMood] = useState("");
   const [culturalContext, setCulturalContext] = useState("");
+  const [fetchingMeta, setFetchingMeta] = useState(false);
+  const lastFetchedId = useRef<string | null>(null);
 
   const youtubeId = extractYouTubeId(youtubeUrl);
   const isValidYoutube = youtubeUrl === "" || YOUTUBE_REGEX.test(youtubeUrl);
+
+  // Auto-populate from YouTube metadata
+  const fetchYouTubeMetadata = useCallback(
+    async (url: string) => {
+      const id = extractYouTubeId(url);
+      if (!id || id === lastFetchedId.current) return;
+      lastFetchedId.current = id;
+      setFetchingMeta(true);
+      try {
+        const { data, error } = await supabase.functions.invoke(
+          "youtube-metadata",
+          { body: { videoId: id } }
+        );
+        if (!error && data) {
+          if (data.title && !title) setTitle(data.title);
+          if ((data.artist || data.channelName) && !artistName)
+            setArtistName(data.artist || data.channelName);
+        }
+      } catch {
+        // silent — user can still fill fields manually
+      } finally {
+        setFetchingMeta(false);
+      }
+    },
+    [title, artistName]
+  );
+
+  const handleYoutubeChange = (value: string) => {
+    setYoutubeUrl(value);
+    if (YOUTUBE_REGEX.test(value)) {
+      fetchYouTubeMetadata(value);
+    }
+  };
   const canSubmit =
     title.trim() &&
     artistName.trim() &&
