@@ -124,13 +124,11 @@ const Upload = () => {
       await upload.mutateAsync({
         title,
         artistName,
-        regionId,
-        genreId,
+        regionId: regionId!,
+        genreId: genreId!,
         mood: mood || undefined,
         culturalContext: culturalContext || undefined,
         youtubeUrl: youtubeUrl || undefined,
-        regionId: regionId!,
-        genreId: genreId!,
       });
 
       toast({
@@ -143,9 +141,9 @@ const Upload = () => {
       setTitle("");
       setArtistName("");
       setYoutubeUrl("");
-      setRegionId("");
-      setGenreId("");
-      setMood("");
+      setRegionId(undefined);
+      setGenreId(undefined);
+      setMood(undefined);
       setCulturalContext("");
     } catch {
       toast({
