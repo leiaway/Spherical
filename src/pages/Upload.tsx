@@ -347,10 +347,7 @@ const Upload = () => {
                   <SelectContent>
                     {regions?.map((r) => (
                       <SelectItem key={r.id} value={r.id}>
-                        <span className="flex items-center gap-2">
-                          <Globe className="w-3.5 h-3.5 text-muted-foreground" />
-                          {r.name} — {r.country}
-                        </span>
+                        {r.name} — {r.country}
                       </SelectItem>
                     ))}
                   </SelectContent>
