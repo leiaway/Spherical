@@ -129,6 +129,8 @@ const Upload = () => {
         mood: mood || undefined,
         culturalContext: culturalContext || undefined,
         youtubeUrl: youtubeUrl || undefined,
+        regionId: regionId!,
+        genreId: genreId!,
       });
 
       toast({
