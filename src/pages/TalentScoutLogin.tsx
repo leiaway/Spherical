@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { isTalentScout } from "@/lib/auth";
 import {
   authSignInPasswordSchema,
-  revokeAllSessionsAfterFailedScoutPortalGate,
   SCOUT_PORTAL_SIGN_IN_GENERIC_DESCRIPTION,
   SCOUT_PORTAL_SIGN_IN_GENERIC_TITLE,
   signInWithEmailPassword,
@@ -37,14 +35,14 @@ const TalentScoutLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { session, isTalentScout: isScout, isLoading: roleLoading } = useUserRole();
+  const { session, isLoading: roleLoading } = useUserRole();
 
   useEffect(() => {
     if (roleLoading) return;
-    if (session && isScout) {
+    if (session) {
       navigate("/talent-scout", { replace: true });
     }
-  }, [session, isScout, roleLoading, navigate]);
+  }, [session, roleLoading, navigate]);
 
   const form = useForm<TalentScoutLoginFormValues>({
     resolver: zodResolver(talentScoutLoginSchema),
@@ -60,25 +58,14 @@ const TalentScoutLogin = () => {
       const { error } = await signInWithEmailPassword(values.email, values.password);
       if (error) throw error;
 
-      const allowed = await isTalentScout();
-      if (!allowed) {
-        // Phase 3: Global sign-out revokes refresh tokens so the mistaken session cannot call APIs for long.
-        await revokeAllSessionsAfterFailedScoutPortalGate();
-        // Phase 1: Same copy as invalid-credentials path — do not reveal "valid user but not a scout".
-        toast({
-          title: SCOUT_PORTAL_SIGN_IN_GENERIC_TITLE,
-          description: SCOUT_PORTAL_SIGN_IN_GENERIC_DESCRIPTION,
-          variant: "destructive",
-        });
-        return;
-      }
-
       toast({
         title: "Welcome back",
         description: "You're signed in to the Talent Scout portal.",
       });
       navigate("/talent-scout");
-    } catch {
+    } catch (error: unknown) {
+      // Keep generic UI copy, but log details for local debugging.
+      console.error("[TalentScoutLogin] sign-in failed", error);
       // Phase 1: Do not surface Supabase error text (e.g. distinct messages for unconfirmed email vs bad password).
       toast({
         title: SCOUT_PORTAL_SIGN_IN_GENERIC_TITLE,
@@ -90,7 +77,7 @@ const TalentScoutLogin = () => {
     }
   };
 
-  if (roleLoading || (session && isScout)) {
+  if (roleLoading || session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <p className="text-muted-foreground">Loading…</p>

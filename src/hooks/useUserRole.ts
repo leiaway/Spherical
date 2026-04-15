@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCurrentUserProfile } from "@/lib/auth";
+import { getCurrentUserProfile, getCurrentUserRole } from "@/lib/auth";
 import type { UserRole } from "@/lib/auth";
 import type { Session } from "@supabase/supabase-js";
 import { queryKeys } from "@/lib/queryKeys";
@@ -26,10 +26,15 @@ export function useUserRole(): UserRoleState {
     queryFn: () => getCurrentUserProfile(),
     enabled: !!userId,
   });
+  const { data: roleData, isPending: rolePending } = useQuery({
+    queryKey: userId ? [...queryKeys.auth.profile(userId), "role"] : [...queryKeys.auth.profileNone, "role"],
+    queryFn: () => getCurrentUserRole(),
+    enabled: !!userId,
+  });
 
   const resolvedProfile = userId ? profile ?? null : null;
-  const isLoading = sessionPending || (!!userId && profilePending);
-  const role: UserRole | null = resolvedProfile?.role ?? null;
+  const isLoading = sessionPending || (!!userId && (profilePending || rolePending));
+  const role: UserRole | null = userId ? roleData ?? null : null;
   const isTalentScout = role === "talent_scout";
 
   return {

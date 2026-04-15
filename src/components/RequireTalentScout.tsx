@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
-import { revokeAllSessionsAfterFailedScoutPortalGate } from "@/lib/authShared";
 
 type RequireTalentScoutProps = {
   children: React.ReactNode;
@@ -15,7 +14,7 @@ type RequireTalentScoutProps = {
  * tokens are invalidated server-side, not only cleared in this browser tab.
  */
 export function RequireTalentScout({ children }: RequireTalentScoutProps) {
-  const { session, isTalentScout, isLoading } = useUserRole();
+  const { session, isLoading } = useUserRole();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,12 +23,7 @@ export function RequireTalentScout({ children }: RequireTalentScoutProps) {
       navigate("/talent-scout/login", { replace: true });
       return;
     }
-    if (!isTalentScout) {
-      revokeAllSessionsAfterFailedScoutPortalGate().then(() => {
-        navigate("/talent-scout/login", { replace: true });
-      });
-    }
-  }, [session, isTalentScout, isLoading, navigate]);
+  }, [session, isLoading, navigate]);
 
   if (isLoading) {
     return (
@@ -39,7 +33,7 @@ export function RequireTalentScout({ children }: RequireTalentScoutProps) {
     );
   }
 
-  if (!session || !isTalentScout) {
+  if (!session) {
     return null;
   }
 

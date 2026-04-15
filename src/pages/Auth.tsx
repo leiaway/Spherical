@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { getCurrentUserProfile } from "@/lib/auth";
+import { getCurrentUserRole } from "@/lib/auth";
 import { authSignInPasswordSchema, signInWithEmailPassword } from "@/lib/authShared";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Button } from "@/components/ui/button";
@@ -122,8 +122,8 @@ const Auth = () => {
           });
         }
       }
-      const profile = await getCurrentUserProfile();
-      navigate(profile?.role === "talent_scout" ? "/talent-scout" : "/");
+      const role = await getCurrentUserRole();
+      navigate(role === "talent_scout" ? "/talent-scout" : "/");
     } catch (error: any) {
       toast({
         title: "Error",
